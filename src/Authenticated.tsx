@@ -20,7 +20,7 @@ export const Authenticated: React.FC = () => {
       <div className="container">
         <Routes>
           <Route path="/login" element={<Navigate to={window.location.pathname} />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/*" element={<Settings />} />
         </Routes>
       </div>
     </>
