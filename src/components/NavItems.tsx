@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { UserHelper, Permissions, ApiHelper } from "./";
+import { UserHelper, ApiHelper } from "./";
+import { Permissions } from "../appBase/interfaces";
 import { NavLink } from "react-router-dom";
 import { EnvironmentHelper } from "../helpers";
 

@@ -2,6 +2,7 @@ import Papa from "papaparse";
 import FileSaver from "file-saver";
 import { Buffer } from "buffer"
 import JSZip from "jszip";
+import * as XLSX from 'xlsx';
 
 export class UploadHelper {
 
@@ -116,6 +117,37 @@ export class UploadHelper {
       if (r[n] === "") delete r[n];
     }
     return r;
+  }
+
+  static readXlSX(file: string) {
+    const workbook = XLSX.readFile(file);
+    const sheet_name_list = workbook.SheetNames;
+    console.log('SNL', sheet_name_list);
+    // sheet_name_list.forEach(function(y) {
+    // var worksheet = workbook.Sheets[y];
+    // var headers = {};
+    // var data = [];
+    // for(z in worksheet) {
+    //     if(z[0] === '!') continue;
+    //     //parse out the column, row, and value
+    //     var col = z.substring(0,1);
+    //     var row = parseInt(z.substring(1));
+    //     var value = worksheet[z].v;
+
+    //     //store header names
+    //     if(row == 1) {
+    //         headers[col] = value;
+    //         continue;
+    //     }
+
+    //     if(!data[row]) data[row]={};
+    //     data[row][headers[col]] = value;
+    // }
+    // //drop those first two rows which are empty
+    // data.shift();
+    // data.shift();
+    // console.log(data);
+// });
   }
 
 }

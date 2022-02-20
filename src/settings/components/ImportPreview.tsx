@@ -2,8 +2,8 @@ import React from "react";
 import { Table, Tabs, Tab, Alert } from "react-bootstrap";
 import { DisplayBox, ImportHelper, DateHelper, CurrencyHelper } from ".";
 import { ImportGroupInterface, ImportPersonInterface, ImportDonationBatchInterface, ImportDonationInterface, ImportFundInterface, ImportDataInterface } from "../../helpers/ImportHelper";
-
-interface Props { importData: ImportDataInterface, triggerRender: number }
+import { ConverterHelper } from '../../helpers';
+interface Props { importData: any, triggerRender: number }
 
 export const ImportPreview: React.FC<Props> = (props) => {
   let x: number;
@@ -123,12 +123,14 @@ export const ImportPreview: React.FC<Props> = (props) => {
   }
 
   const getFormsTable = () => {
-    if (props.importData.forms.length === 0) return null;
+    if (props.importData.length === 0) return null;
     else {
       let rows = [];
-      for (let i = 0, totalForms = props.importData.forms.length; i < totalForms; i++) {
-        let form = props.importData.forms[i];
-        rows.push(<tr key={i}><td>{form.name}</td><td>{form.contentType}</td></tr>)
+      for (let i = 0, totalData = props.importData.length; i < totalData; i++) {
+        let obj = props.importData[i];
+        let key = Object.keys(obj)
+        console.log(key)
+        rows.push(<tr key={i}><td>{key[0]}</td><td>Test</td></tr>)
       }
       return (
         <Table>
@@ -139,16 +141,77 @@ export const ImportPreview: React.FC<Props> = (props) => {
     }
   }
 
-  if (props.importData.people.length === 0) return (<Alert variant="info"><b>Important:</b> This tool is designed to help you load your initial data into the system.  Using it after you have been using Chums for a while is risky and may result in duplicated data.</Alert>);
+  const getRows = (category: any) => {
+    let rows: any = [];
+    console.log('Category', category)
+    for (const [categoryName, sheets] of Object.entries(category)) {
+      // @ts-ignore
+      sheets.forEach((sheet: any) => {
+        let sheetName = Object.keys(sheet)[0];
+        let dataRows = sheet[sheetName];
+        console.log('rows', rows);
+        if (dataRows.length) {
+          let header = Object.keys(rows[0]);
+          let c = categoryName.toLowerCase();
+          c = c === 'donations' ? 'contributions' : c;
+          header = header.map((h: any) => {
+            // @ts-ignore
+            return ConverterHelper.breeze[c][h].name;
+          })
+
+        dataRows = dataRows.map((row: any) => Object.values(row));
+
+        }
+      console.log('ROWS', dataRows)
+      });
+    }
+    return rows;
+    }
+
+  const getHeader = (category: any) => {
+    let row: any = [];
+    for (const [categoryName, previewData] of Object.entries(category)) {
+      // @ts-ignore
+      previewData.header.forEach((heading: any) => {
+      row.push(
+        <th>{heading}</th>
+      )
+    });
+
+    }
+    return row;
+  }
+
+  const getData = () => {
+    let rows: any = [];
+    props.importData.forEach((category: any) => {
+      // const tabName = Object.keys(category)[0];
+      const tabName = 'TEST'
+      console.log('tabName', category);
+      rows.push(
+        <Tab eventKey="forms" title={tabName}>
+          <DisplayBox headerIcon="" headerText="Forms">
+            <Table>
+              <thead><tr>{getHeader(category)}</tr></thead>
+              {/* <tbody>{getRows(category)}</tbody> */}
+            </Table>
+          </DisplayBox>
+        </Tab>
+      );
+    });
+    return rows;
+  }
+
+  if (props.importData.length === 0) return <>NO DATA</>
   else return (<>
     <h2>Preview</h2>
-    <Tabs defaultActiveKey="people" id="previewTabs" transition={false}>
-      <Tab eventKey="people" title="People"><DisplayBox headerIcon="" headerText="People">{getPeopleTable()}</DisplayBox></Tab>
-      <Tab eventKey="groups" title="Groups"><DisplayBox headerIcon="" headerText="Groups">{getGroupsTable()}</DisplayBox></Tab>
-      <Tab eventKey="attendance" title="Attendance"><DisplayBox headerIcon="" headerText="Attendance">{getAttendanceTable()}</DisplayBox></Tab>
-      <Tab eventKey="donations" title="Donations"><DisplayBox headerIcon="" headerText="Donations">{getDonationsTable()}</DisplayBox></Tab>
+    <Tabs defaultActiveKey="forms" id="previewTabs" transition={false}>
+      {getData()}
+      {/* <Tab eventKey="people" title="People"><DisplayBox headerIcon="" headerText="People">{getPeopleTable()}</DisplayBox></Tab> */}
+      {/* <Tab eventKey="groups" title="Groups"><DisplayBox headerIcon="" headerText="Groups">{getGroupsTable()}</DisplayBox></Tab> */}
+      {/* <Tab eventKey="attendance" title="Attendance"><DisplayBox headerIcon="" headerText="Attendance">{getAttendanceTable()}</DisplayBox></Tab> */}
+      {/* <Tab eventKey="donations" title="Donations"><DisplayBox headerIcon="" headerText="Donations">{getDonationsTable()}</DisplayBox></Tab> */}
       <Tab eventKey="forms" title="Forms"><DisplayBox headerIcon="" headerText="Forms">{getFormsTable()}</DisplayBox></Tab>
     </Tabs>
   </>);
 }
-

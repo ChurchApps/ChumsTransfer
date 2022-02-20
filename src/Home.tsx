@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { Footer, Header } from "./components"
+import { ImportPage } from "./settings/ImportPage";
 
 export const Home = () => (
   <>
@@ -14,6 +15,7 @@ export const Home = () => (
       <hr />
       <h2>Step 1 - Import Source</h2>
       <Button variant="primary">Next Step</Button>
+      <ImportPage></ImportPage>
 
       <hr />
       <Link to={"/settings/import"}>Temp Link to Old Import</Link><br />

@@ -1,43 +1,28 @@
 import React from "react";
-import { UserHelper, ImportPreview, ImportHelper, InputBox, UploadHelper, ImportStatus, Permissions } from "./components";
-import {
-  ImportPersonInterface, ImportHouseholdInterface
-  , ImportCampusInterface, ImportServiceInterface, ImportServiceTimeInterface
-  , ImportGroupInterface, ImportGroupMemberInterface, ImportGroupServiceTimeInterface
-  , ImportVisitInterface, ImportSessionInterface, ImportVisitSessionInterface
-  , ImportDonationBatchInterface, ImportFundInterface, ImportDonationInterface
-  , ImportFundDonationInterface, ImportDataInterface, ImportFormsInterface
-  , ImportQuestionsInterface, ImportFormSubmissions, ImportAnswerInterface
-} from "../helpers/ImportHelper";
-import { Row, Col } from "react-bootstrap";
+import { InputBox, UploadHelper, StandardInterface } from "./components";
+import { Row, Col, FormGroup, FormLabel, FormControl, Button } from "react-bootstrap";
 import JSZip from "jszip";
+import * as XLSX from 'xlsx';
+import { ConverterHelper } from '../helpers';
 
 export const ImportPage = () => {
-  const [people, setPeople] = React.useState<ImportPersonInterface[]>([]);
-  const [households, setHouseholds] = React.useState<ImportHouseholdInterface[]>([]);
-  const [triggerRender, setTriggerRender] = React.useState(0);
 
-  const [campuses, setCampuses] = React.useState<ImportCampusInterface[]>([]);
-  const [services, setServices] = React.useState<ImportServiceInterface[]>([]);
-  const [serviceTimes, setServiceTimes] = React.useState<ImportServiceTimeInterface[]>([]);
+  const [sourceCms, setSourceCms] = React.useState<string>('');
+  const [toCMS, setToCMS] = React.useState<string>(null);
+  const [sourceData, setSourceData] = React.useState<any>([]);
+  const [convertedData, setConvertedData] = React.useState<any>(null);
+  const [showPreview, setShowPreview] = React.useState<boolean>(null);
+  const [previewData, setPreviewData] = React.useState<any>([]);
 
-  const [groupServiceTimes, setGroupServiceTimes] = React.useState<ImportGroupServiceTimeInterface[]>([]);
-  const [groups, setGroups] = React.useState<ImportGroupInterface[]>([]);
-  const [groupMembers, setGroupMembers] = React.useState<ImportGroupMemberInterface[]>([]);
+  const standardizedCategories = {
+    contributions: 'donations',
+    people: 'people',
+    tags: 'tags',
+    events: 'events',
+    notes: 'notes'
+  }
 
-  const [sessions, setSessions] = React.useState<ImportSessionInterface[]>([])
-  const [visits, setVisits] = React.useState<ImportVisitInterface[]>([])
-  const [visitSessions, setVisitSessions] = React.useState<ImportVisitSessionInterface[]>([])
-
-  const [batches, setBatches] = React.useState<ImportDonationBatchInterface[]>([]);
-  const [funds, setFunds] = React.useState<ImportFundInterface[]>([]);
-  const [donations, setDonations] = React.useState<ImportDonationInterface[]>([]);
-  const [fundDonations, setFundDonations] = React.useState<ImportFundDonationInterface[]>([]);
-
-  const [forms, setForms] = React.useState<ImportFormsInterface[]>([]);
-  const [questions, setQuestions] = React.useState<ImportQuestionsInterface[]>([]);
-  const [formSubmissions, setFormSubmissions] = React.useState<ImportFormSubmissions[]>([]);
-  const [answers, setAnswers] = React.useState<ImportAnswerInterface[]>([]);
+  const cmsOptions = ['chums', 'breeze'];
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -47,204 +32,177 @@ export const ImportPage = () => {
     }
   }
 
-  const readZip = async (file: File) => {
-    const zip = await JSZip.loadAsync(file);
-
-    zip.files["people.csv"] && loadPeople(UploadHelper.readCsvString(await zip.file("people.csv").async("string")), zip);
-    let tmpServiceTimes = zip.files["services.csv"] && loadServiceTimes(UploadHelper.readCsvString(await zip.file("services.csv").async("string")));
-    zip.files["groups.csv"] && loadGroups(UploadHelper.readCsvString(await zip.file("groups.csv").async("string")));
-    zip.files["groupmembers.csv"] && loadGroupMembers(UploadHelper.readCsvString(await zip.file("groupmembers.csv").async("string")));
-    zip.files["attendance.csv"] && loadAttendance(UploadHelper.readCsvString(await zip.file("attendance.csv").async("string")), tmpServiceTimes);
-    zip.files["donations.csv"] && loadDonations(UploadHelper.readCsvString(await zip.file("donations.csv").async("string")));
-    zip.files["forms.csv"] && loadForms(UploadHelper.readCsvString(await zip.file("forms.csv").async("string")));
-    zip.files["questions.csv"] && loadQuestions(UploadHelper.readCsvString(await zip.file("questions.csv").async("string")));
-    zip.files["formSubmissions.csv"] && loadFormSubmissions(UploadHelper.readCsvString(await zip.file("formSubmissions.csv").async("string")));
-    zip.files["answers.csv"] && loadAnswers(UploadHelper.readCsvString(await zip.file("answers.csv").async("string")));
-  }
-
-  const loadAnswers = (data: any) => {
-    let answers: ImportAnswerInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].value !== undefined) {
-      answers.push(data[i]);
-    }
-
-    setAnswers(answers);
-  }
-
-  const loadFormSubmissions = (data: any) => {
-    let formSubmissions: ImportFormSubmissions[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined) {
-      formSubmissions.push(data[i]);
-    }
-
-    setFormSubmissions(formSubmissions);
-  }
-
-  const loadQuestions = (data: any) => {
-    let questions: ImportQuestionsInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].title !== undefined) {
-      questions.push(data[i]);
-    }
-
-    setQuestions(questions);
-  }
-
-  const loadForms = (data: any) => {
-    let forms: ImportFormsInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].name !== undefined) {
-      forms.push(data[i]);
-    }
-
-    setForms(forms);
-  }
-
-  const loadDonations = (data: any) => {
-    let batches: ImportDonationBatchInterface[] = [];
-    let funds: ImportFundInterface[] = [];
-    let donations: ImportDonationInterface[] = [];
-    let fundDonations: ImportFundDonationInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].amount !== undefined) {
-      let d = data[i];
-      let batch = ImportHelper.getOrCreateBatch(batches, d.batch, new Date(d.date));
-      let fund = ImportHelper.getOrCreateFund(funds, d.fund);
-      let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d.personKey, donationDate: new Date(d.date), amount: Number.parseFloat(d.amount), method: d.method, methodDetails: d.methodDetails, notes: d.notes } as ImportDonationInterface;
-      let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.amount) } as ImportFundDonationInterface;
-      donations.push(donation);
-      fundDonations.push(fundDonation);
-    }
-
-    setBatches(batches)
-    setFunds(funds);
-    setDonations(donations);
-    setFundDonations(fundDonations);
-  }
-
-  const loadAttendance = (data: any, tmpServiceTimes: ImportServiceTimeInterface[]) => {
-    let sessions: ImportSessionInterface[] = [];
-    let visits: ImportVisitInterface[] = [];
-    let visitSessions: ImportVisitSessionInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined && data[i].groupKey !== undefined) {
-      let session = ImportHelper.getOrCreateSession(sessions, new Date(data[i].date), data[i].groupKey, data[i].serviceTimeKey);
-      let visit = ImportHelper.getOrCreateVisit(visits, data[i], tmpServiceTimes);
-      let visitSession = { visitKey: visit.importKey, sessionKey: session.importKey } as ImportVisitSessionInterface;
-      visitSessions.push(visitSession);
-
-      let group = ImportHelper.getOrCreateGroup(groups, data[i]);
-      if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-        let gst = { groupKey: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-        groupServiceTimes.push(gst);
-      }
-    }
-    setVisits(visits);
-    setSessions(sessions);
-    setVisitSessions(visitSessions);
-  }
-
-  const loadServiceTimes = (data: any) => {
-    let campuses: ImportCampusInterface[] = [];
-    let services: ImportServiceInterface[] = [];
-    let serviceTimes: ImportServiceTimeInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].time !== undefined) {
-      let campus = ImportHelper.getOrCreateCampus(campuses, data[i].campus);
-      let service = ImportHelper.getOrCreateService(services, data[i].service, campus);
-      ImportHelper.getOrCreateServiceTime(serviceTimes, data[i], service);
-    }
-    setCampuses(campuses);
-    setServices(services);
-    setServiceTimes(serviceTimes);
-    return serviceTimes;
-  }
-
-  const loadGroups = (data: any) => {
-    let groups: ImportGroupInterface[] = [];
-    let groupServiceTimes: ImportGroupServiceTimeInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) if (data[i].name !== undefined) {
-      let group = ImportHelper.getOrCreateGroup(groups, data[i]);
-      if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-        let gst = { groupKey: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-        groupServiceTimes.push(gst);
-      }
-    }
-    setGroups(groups);
-    setGroupServiceTimes(groupServiceTimes);
-    return groups;
-  }
-
-  const loadGroupMembers = (data: any) => {
-    let members: ImportGroupMemberInterface[] = [];
-    for (let i = 0; i < data.length; i++) if (data[i].groupKey !== undefined) members.push(data[i] as ImportGroupMemberInterface);
-    setGroupMembers(members);
-  }
-
-  const loadPeople = (data: any, zip: any) => {
-    let people: ImportPersonInterface[] = [];
-    let households: ImportHouseholdInterface[] = [];
-
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].lastName !== undefined) {
-        const p = data[i] as ImportPersonInterface;
-        p.name = { first: data[i].firstName, last: data[i].lastName, middle: data[i].middleName, nick: data[i].nickName, display: data[i].displayName }
-        p.contactInfo = { address1: data[i].address1, address2: data[i].address2, city: data[i].city, state: data[i].state, zip: data[i].zip, homePhone: data[i].homePhone, workPhone: data[i].workPhone, email: data[i].email }
-
-        assignHousehold(households, data[i]);
-        if (p.photo !== undefined) {
-          zip?.file(p.photo)?.async("base64").then((data: any) => {
-            if (data) {
-              p.photo = "data:image/png;base64," + data;
-              setTriggerRender(Math.random());
-            }
-          });
+  const detectSource = (data: any, type: string) => {
+    let matchedCMS = '';
+    let highestMatch = 0;
+    if (data[0]) {
+    const dataKeys = Object.keys(data[0]);
+    cmsOptions.map((cms: any)=> {
+      if (cms === type) {
+        const dataKeys = Object.keys(data[0]);
+        // @ts-ignore
+        const cmsKeys: any = Object.values(ConverterHelper[type]);
+        const matches = dataKeys.reduce((a, c) => a + cmsKeys.includes(c), 0);
+        if (matches > highestMatch) {
+          highestMatch = matches;
+          matchedCMS = cms;
         }
-        people.push(p);
       }
+    });
     }
-    setPeople(people);
-    setHouseholds(households);
-    return people;
+    return matchedCMS;
   }
 
-  const assignHousehold = (households: ImportHouseholdInterface[], person: any) => {
-    let householdName: string = person.householdName;
-    if (households.length === 0 || households[households.length - 1].name !== householdName) households.push({ name: householdName, importKey: (households.length + 1).toString() } as ImportHouseholdInterface);
-    person.householdKey = households[households.length - 1].importKey;
+  const loadCsvFile = async (file: JSZip.JSZipObject) => {
+    const csv = UploadHelper.readCsvString(await file.async("string"));
+    setSourceData(csv);
+    console.log("CSV", csv);
+  }
+
+  const loadExcelFile = async (file: JSZip.JSZipObject) => {
+    const xlsx = XLSX.read(await file.async("arraybuffer"), {type: 'buffer'});
+    let source = cmsOptions.find((option: string) => xlsx?.Props?.Author.toLowerCase().includes(option)) || null;
+    const standardizedData: StandardInterface = {};
+    let category = xlsx?.Props?.Category?.toLowerCase() as keyof typeof standardizedData;
+    if (xlsx?.Props?.Category === 'Contributions' && xlsx.Props.SheetNames[0] === 'Notes') category = 'notes';
+    const standardizedCategory = standardizedCategories[category as keyof typeof standardizedCategories] as keyof typeof standardizedData;
+    let preview: any = {[category]: {header: [], rows: []}};
+    standardizedData[standardizedCategory] = [];
+    for (const sheetName of xlsx.SheetNames) {
+      let sheetData: any = {[sheetName]: []};
+      const sheetJson = XLSX.utils.sheet_to_json(xlsx.Sheets[sheetName], {defval: ""});
+      for (const row of sheetJson) {
+        if (!source) source = detectSource(row, category);
+        let standardizedRow: any = {};
+        let previewTableHeaders = Object.keys(row);
+        preview[category].header = [...new Set([...preview[category].header,...previewTableHeaders])];
+        preview[category].rows.push(row);
+        if (previewTableHeaders.length > preview[category].header.length) preview[category].header.push(previewTableHeaders);
+        for (const [key, value] of Object.entries(row)) {
+          if (source && category) {
+            // @ts-ignore
+            const referenceKeys = ConverterHelper[source][category];
+            const matchedStandardizedKey = Object.keys(referenceKeys).find((k: string) => referenceKeys[k].name === key);
+            if (matchedStandardizedKey) standardizedRow[matchedStandardizedKey] = value;
+          }
+        }
+        sheetData[sheetName].push(standardizedRow);
+      }
+      standardizedData[standardizedCategory].push(sheetData);
+    }
+    setSourceCms(source);
+    let existingSourceData = sourceData;
+    let existingPreviewData = previewData;
+    existingSourceData.push(standardizedData)
+    existingPreviewData.push(preview);
+    setSourceData(existingSourceData);
+    setPreviewData(existingPreviewData);
+    console.log('SOURCE DATA ', existingSourceData);
+    console.log('PREVIEW DATA ', preview);
+  }
+
+
+  const readZip = async (zipFile: File) => {
+    const zip = await JSZip.loadAsync(zipFile);
+    console.log(zip.files);
+    for (const file in zip.files) {
+      const fileExt = file.split(".")[1];
+      if (fileExt === "csv") await loadCsvFile(zip.file(file));
+      if (fileExt === "xls" || fileExt === "xlsx") await loadExcelFile(zip.file(file));
+    }
+
+    // if (sourceData.length > 0) setShowPreview(true);
+  }
+
+  const handleCMSChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (e.target.name === 'fromCMS') setSourceCms(e.target.value);
+    if (e.target.name === 'toCMS') setToCMS(e.target.value);
   }
 
   const getAction = () => {
-    if (people.length === 0) return (
-      <InputBox headerText="Import" headerIcon="fas fa-upload" saveText="Upload and Preview" saveFunction={() => { document.getElementById("fileUpload").click(); }}>
-        Select a files to Upload.  You can download sample files <a href="/sampleimport.zip">here</a>.
-        <input type="file" onChange={handleUpload} id="fileUpload" accept=".zip" style={{ display: "none" }} />
-      </InputBox>
+    if (sourceData.length < 1) return (
+      <>
+        {/* <FormGroup>
+          <FormLabel>Convert Data From</FormLabel>
+          <FormControl as="select" name="fromCMS" onChange={handleCMSChange}>
+            <option value="" selected disabled hidden>Convert From</option>
+            <option value="chums">Chums</option>
+            <option value="breeze">Breeze</option>
+          </FormControl>
+        </FormGroup>
+        <div className="text-center">
+          <i className="fas fa-arrow-down center" style={{fontSize: '64px', margin: 'auto'}}></i>
+        </div> */}
+
+        <InputBox headerText="Import" headerIcon="fas fa-upload" saveText="Upload and Preview" saveFunction={() => { document.getElementById("fileUpload").click(); }}>
+          Select a files to Upload.
+          <input type="file" onChange={handleUpload} id="fileUpload" accept=".zip" style={{ display: "none" }} />
+        </InputBox>
+
+        {/* <FormGroup>
+          <FormLabel>Convert Data To</FormLabel>
+          <FormControl as="select" defaultValue="" name="toCMS" onChange={handleCMSChange}>
+            { sourceCms !== 'breeze' && <option disabled={!sourceCms} value="breeze">Breeze</option> }
+            { sourceCms !== 'chums' && <option disabled={!sourceCms} value="chums">Chums</option> }
+          </FormControl>
+        </FormGroup> */}
+
+        {/* {showPreview && <Button variant="primary" onClick={convertData}>Export Data</Button>} */}
+
+
+      </>
     );
-    else return (<ImportStatus importData={getData()} />);
+    else return <Button variant="primary" onClick={convertData}>Export Data</Button>
+    // else return <></>
+    // else return <ImportPreview importData={previewData} triggerRender={1}></ImportPreview>;
+    // else return (<ImportStatus importData={getData()} />);
   }
 
-  const getData = () => ({
-    people: people, households: households,
-    campuses: campuses, services: services, serviceTimes: serviceTimes,
-    groupServiceTimes: groupServiceTimes, groups: groups, groupMembers: groupMembers,
-    visits: visits, sessions: sessions, visitSessions: visitSessions,
-    batches: batches, donations: donations, funds: funds, fundDonations: fundDonations,
-    forms: forms, questions: questions, formSubmissions: formSubmissions, answers: answers
-  } as ImportDataInterface)
+  const convertData = () => {
+    if (sourceData) { // [{events: [{File Name: [{date: '12-2-22', name: 'joe'}, {date: '12-2-22', name: 'joe'}]}]}, {donations: [...]}]
+      const to = 'chums';
+      let final: any = [];
+      let convertedData: any = ConverterHelper[to]; //{donations: {…}, attendance: {…}, groupmembers: {…}, groups: {…}, services: {…}, …}
 
-  if (!UserHelper.checkAccess(Permissions.accessApi.settings.edit)) return (<></>);
+      for (const [categoryName, categoryData] of Object.entries(convertedData)) {
+        const finalCategory: any = {[categoryName] : []};
+        let tst = sourceData.find((catObj: any) => catObj[categoryName]);
+        if (tst) {
+          tst[categoryName].forEach((file: any) => {
+            for (const [fileName, rows] of Object.entries(file)) {
+              let fileData: any = {[fileName]: []};
+              //@ts-ignore
+              rows.forEach((row: any) => {
+                let newRow: any = {};
+                for (const [columnName, data] of Object.entries(row)) {
+                  //@ts-ignore
+                  if (categoryData[columnName]) {
+                    //@ts-ignore
+                    let name: any = categoryData[columnName].name;
+                    let val = data;
+                    newRow[name] = val;
+                  }
+                }
+                fileData[fileName].push(newRow);
+                finalCategory[categoryName].push(fileData);
+              });
+            }
+          });
+        }
+        final.push(finalCategory);
+      }
+
+    }
+    console.log('CONVERTEDDATA', convertData)
+  }
+
   return (
     <>
-      <h1><i className="fas fa-upload"></i> Import Data</h1>
       <Row>
-        <Col lg={8}><ImportPreview importData={getData()} triggerRender={triggerRender} /></Col>
-        <Col lg={4}>{getAction()}</Col>
+        <Col lg={6}>{getAction()}</Col>
+        {/* {sourceData.length > 0 && <Col lg={8}><ImportPreview importData={sourceData} triggerRender={triggerRender} /></Col> } */}
       </Row>
     </>
   );
 }
-
