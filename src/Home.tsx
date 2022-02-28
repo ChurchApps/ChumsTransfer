@@ -29,6 +29,7 @@ export const Home = () => {
     setImportData(null)
     let importData: ImportDataInterface;
     importData = await getChumsData();
+    console.log("importData", importData)
     setImportData(importData);
   };
   const handleDisplayFileDetails = () => {
