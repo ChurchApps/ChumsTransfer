@@ -50,7 +50,10 @@ export class UploadHelper {
 
   static readCsvString(csv: string) {
     let result = [];
-    let data = Papa.parse(csv, { header: true });
+    let data = Papa.parse(csv, { header: true,
+      transformHeader:function(h) {
+        return h.trim();
+      } });
     for (let i = 0; i < data.data.length; i++) {
       let r: any = this.getStrippedRecord(data.data[i]);
       result.push(r);

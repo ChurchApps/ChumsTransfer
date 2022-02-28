@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { UserHelper, ImportPreview, ImportHelper, InputBox, UploadHelper, ImportStatus, Permissions } from "./components";
 import {
   ImportPersonInterface, ImportHouseholdInterface
@@ -13,31 +13,31 @@ import { Row, Col } from "react-bootstrap";
 import JSZip from "jszip";
 
 export const ImportPage = () => {
-  const [people, setPeople] = React.useState<ImportPersonInterface[]>([]);
-  const [households, setHouseholds] = React.useState<ImportHouseholdInterface[]>([]);
-  const [triggerRender, setTriggerRender] = React.useState(0);
+  const [people, setPeople] = useState<ImportPersonInterface[]>([]);
+  const [households, setHouseholds] = useState<ImportHouseholdInterface[]>([]);
+  const [triggerRender, setTriggerRender] = useState(0);
 
-  const [campuses, setCampuses] = React.useState<ImportCampusInterface[]>([]);
-  const [services, setServices] = React.useState<ImportServiceInterface[]>([]);
-  const [serviceTimes, setServiceTimes] = React.useState<ImportServiceTimeInterface[]>([]);
+  const [campuses, setCampuses] = useState<ImportCampusInterface[]>([]);
+  const [services, setServices] = useState<ImportServiceInterface[]>([]);
+  const [serviceTimes, setServiceTimes] = useState<ImportServiceTimeInterface[]>([]);
 
-  const [groupServiceTimes, setGroupServiceTimes] = React.useState<ImportGroupServiceTimeInterface[]>([]);
-  const [groups, setGroups] = React.useState<ImportGroupInterface[]>([]);
-  const [groupMembers, setGroupMembers] = React.useState<ImportGroupMemberInterface[]>([]);
+  const [groupServiceTimes, setGroupServiceTimes] = useState<ImportGroupServiceTimeInterface[]>([]);
+  const [groups, setGroups] = useState<ImportGroupInterface[]>([]);
+  const [groupMembers, setGroupMembers] = useState<ImportGroupMemberInterface[]>([]);
 
-  const [sessions, setSessions] = React.useState<ImportSessionInterface[]>([])
-  const [visits, setVisits] = React.useState<ImportVisitInterface[]>([])
-  const [visitSessions, setVisitSessions] = React.useState<ImportVisitSessionInterface[]>([])
+  const [sessions, setSessions] = useState<ImportSessionInterface[]>([])
+  const [visits, setVisits] = useState<ImportVisitInterface[]>([])
+  const [visitSessions, setVisitSessions] = useState<ImportVisitSessionInterface[]>([])
 
-  const [batches, setBatches] = React.useState<ImportDonationBatchInterface[]>([]);
-  const [funds, setFunds] = React.useState<ImportFundInterface[]>([]);
-  const [donations, setDonations] = React.useState<ImportDonationInterface[]>([]);
-  const [fundDonations, setFundDonations] = React.useState<ImportFundDonationInterface[]>([]);
+  const [batches, setBatches] = useState<ImportDonationBatchInterface[]>([]);
+  const [funds, setFunds] = useState<ImportFundInterface[]>([]);
+  const [donations, setDonations] = useState<ImportDonationInterface[]>([]);
+  const [fundDonations, setFundDonations] = useState<ImportFundDonationInterface[]>([]);
 
-  const [forms, setForms] = React.useState<ImportFormsInterface[]>([]);
-  const [questions, setQuestions] = React.useState<ImportQuestionsInterface[]>([]);
-  const [formSubmissions, setFormSubmissions] = React.useState<ImportFormSubmissions[]>([]);
-  const [answers, setAnswers] = React.useState<ImportAnswerInterface[]>([]);
+  const [forms, setForms] = useState<ImportFormsInterface[]>([]);
+  const [questions, setQuestions] = useState<ImportQuestionsInterface[]>([]);
+  const [formSubmissions, setFormSubmissions] = useState<ImportFormSubmissions[]>([]);
+  const [answers, setAnswers] = useState<ImportAnswerInterface[]>([]);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -135,7 +135,7 @@ export const ImportPage = () => {
       let visitSession = { visitKey: visit.importKey, sessionKey: session.importKey } as ImportVisitSessionInterface;
       visitSessions.push(visitSession);
 
-      let group = ImportHelper.getOrCreateGroup(groups, data[i]);
+      let group = groups.find(group => group.importKey === data[i].groupKey);
       if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
         let gst = { groupKey: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
         groupServiceTimes.push(gst);
@@ -173,6 +173,7 @@ export const ImportPage = () => {
         groupServiceTimes.push(gst);
       }
     }
+
     setGroups(groups);
     setGroupServiceTimes(groupServiceTimes);
     return groups;

@@ -11,7 +11,7 @@ export const Header: React.FC = () => (<>
 
         </Col>
         <div className="col-6 col-lg-2-5 text-right" id="navRight">
-          <a href={EnvironmentHelper.AppUrl} className="link">Login</a>
+          <a href="/login" className="link">Login</a>
           <a href="/#register" className="btn btn-success btn-sm">Get Started</a>
         </div>
       </Row>
