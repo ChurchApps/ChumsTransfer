@@ -1,21 +1,30 @@
 import React from "react"
 import { Row, Col, Container } from "react-bootstrap";
+import { UserHelper } from "../appBase/helpers";
 import { EnvironmentHelper } from "../helpers";
 
-export const Header: React.FC = () => (<>
-  <div id="navbar" className="fixed-top">
-    <Container>
-      <Row>
-        <div className="col-6 col-lg-2-5"><a className="navbar-brand" href="/"><img src="/images/logo.png" alt="logo" /></a></div>
-        <Col className="d-none d-xl-block" xl={7}>
+export const Header: React.FC = () => {
 
-        </Col>
-        <div className="col-6 col-lg-2-5 text-right" id="navRight">
-          <a href="/login" className="link">Login</a>
-          <a href="/#register" className="btn btn-success btn-sm">Get Started</a>
-        </div>
-      </Row>
-    </Container>
-  </div>
-  <div id="navSpacer"></div>
-</>)
+  const getHeaderLink = () => {
+    if (!UserHelper.user) return <a href="/login" className="link">Login</a>
+    else return UserHelper.user.firstName + " " + UserHelper.user.lastName
+  }
+
+  return (<>
+    <div id="navbar" className="fixed-top">
+      <Container>
+        <Row>
+          <div className="col-6 col-lg-2-5"><a className="navbar-brand" href="/"><img src="/images/logo.png" alt="logo" /></a></div>
+          <Col className="d-none d-xl-block" xl={7}>
+
+          </Col>
+          <div className="col-6 col-lg-2-5 text-right" id="navRight">
+            {getHeaderLink()}
+            <a href="/#register" className="btn btn-success btn-sm">Get Started</a>
+          </div>
+        </Row>
+      </Container>
+    </div>
+    <div id="navSpacer"></div>
+  </>)
+}
