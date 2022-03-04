@@ -113,7 +113,7 @@ const loadAttendance = (data: any, tmpServiceTimes: ImportServiceTimeInterface[]
 
     let group = groups.find(group => group.importKey === data[i].groupKey);
     if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-      let gst = { groupKey: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
+      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
       if(groupServiceTimes.find(gst => gst.groupKey === group.importKey && gst.serviceTimeKey === group.serviceTimeKey) === undefined) groupServiceTimes.push(gst);
     }
   }
@@ -132,7 +132,7 @@ const loadGroups = (data: any) => {
   for (let i = 0; i < data.length; i++) if (data[i].name !== undefined) {
     let group = ImportHelper.getOrCreateGroup(groups, data[i]);
     if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-      let gst = { groupKey: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
+      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
       groupServiceTimes.push(gst);
     }
   }

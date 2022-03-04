@@ -139,6 +139,7 @@ export class ImportHelper {
       result.trackAttendance = (data.trackAttendance === "TRUE");
       result.parentPickup = (data.parentPickup === "TRUE");
       if (result.importKey === "" || result.importKey === undefined || result.importKey === null) result.importKey = (groups.length + 1).toString();
+      result.id = data.importKey;
       groups.push(result);
     }
     return result;

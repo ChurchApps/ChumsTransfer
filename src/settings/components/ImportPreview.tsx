@@ -60,10 +60,11 @@ export const ImportPreview: React.FC<Props> = (props) => {
           for (let k = 0; k < filteredTimes.length; k++) {
             let time = filteredTimes[k];
             let filteredGroupServiceTimes = ImportHelper.getGroupServiceTimes(props.importData.groupServiceTimes, time.importKey);
-
             for (let l = 0; l < filteredGroupServiceTimes.length; l++) {
-              let group = props.importData.groups.find(group => group.importKey === filteredGroupServiceTimes[l].groupKey);
-              rows.push(<tr key={group.name + Math.random()}><td>{campus.name}</td><td>{service.name}</td><td>{time.name}</td><td>{group.categoryName}</td><td>{group.name}</td><td>{getMemberCount(group.importKey)}</td></tr>);
+              let group = props.importData.groups.find(group => group.id === filteredGroupServiceTimes[l].groupId);
+              if(group){
+                rows.push(<tr key={group.name + Math.random()}><td>{campus.name}</td><td>{service.name}</td><td>{time.name}</td><td>{group.categoryName}</td><td>{group.name}</td><td>{getMemberCount(group.importKey)}</td></tr>);
+              }
             }
           }
         }
