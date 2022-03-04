@@ -9,6 +9,7 @@ import {
   , ImportQuestionsInterface, ImportFormSubmissions, ImportAnswerInterface
 } from "../ImportHelper";
 import JSZip from "jszip";
+import { ContactInfoInterface, NameInterface } from "..";
 
 let people: ImportPersonInterface[] = [];
 let households: ImportHouseholdInterface[] = [];
@@ -33,7 +34,7 @@ let answers:ImportAnswerInterface[] = [];
 const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
   const zip = await JSZip.loadAsync(file);
   const fileNames = Object.keys(zip.files);
-  console.log(zip)
+  //console.log(zip)
   const peopleFile = fileNames.find(name => name.match("people"))
   const tagsFile = fileNames.find(name => name.match("tags"))
   const notesFile = fileNames.find(name => name.match("notes"))
@@ -139,27 +140,41 @@ const loadGroupMembers = (data: any) => {
   for (let i = 0; i < data.length; i++) if (data[i].groupKey !== undefined) groupMembers.push(data[i] as ImportGroupMemberInterface);
 }
 
-const loadPeople = (data: any) => {
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].lastName !== undefined) {
-      const p = data[i] as ImportPersonInterface;
-      p.name = { first: data[i].firstName, last: data[i].lastName, middle: data[i].middleName, nick: data[i].nickName, display: data[i].displayName }
-      p.contactInfo = { address1: data[i].address1, address2: data[i].address2, city: data[i].city, state: data[i].state, zip: data[i].zip, homePhone: data[i].homePhone, workPhone: data[i].workPhone, email: data[i].email }
-
-      assignHousehold(households, data[i]);
-
-      people.push(p);
-    }
-  }
-  return people;
-}
-
-const assignHousehold = (households: ImportHouseholdInterface[], person: any) => {
-  let householdName: string = person.householdName;
+const assignHousehold = (households: ImportHouseholdInterface[], person: ImportPersonInterface) => {
+  let householdName: string = person.name.last ?? "";
   if (households.length === 0 || households[households.length - 1].name !== householdName) {
     households.push({ name: householdName, importKey: (households.length + 1).toString() } as ImportHouseholdInterface);
   }
   person.householdKey = households[households.length - 1].importKey;
+}
+
+const loadPeople = (data: any) => {
+  console.log("people", data)
+  for (let i = 0; i < data.length; i++) {
+    if (data[i]["Last Name"] !== undefined) {
+      const p = {
+        importKey: data[i]["Breeze ID"],
+        id: data[i]["Breeze ID"],
+        name: { first: data[i]["First Name"], middle: data[i]["Middle Name"], last: data[i]["Last Name"], nick: data[i]["Nickname"], display: `${data[i]["First Name"]} ${data[i]["Last Name"]}` } as NameInterface,
+        contactInfo: { address1: data[i]["Street Address"], address2: "", city: data[i]["City"], state: data[i]["State"], zip: data[i]["Zip"], homePhone: data[i]["Home"], mobilePhone: data[i]["Mobile"], workPhone: data[i]["Work"], email: data[i]["Email"] } as ContactInfoInterface,
+        membershipStatus: data[i]["Status"],
+        gender: data[i]["Gender"],
+        birthDate: data[i]["Birthdate"],
+        maritalStatus: data[i]["Marital Status"],
+        anniversary: new Date(),
+        photo: "",
+        photoUpdated: new Date(),
+        householdId: data[i]["Family"],
+        householdRole: data[i]["Family Role"],
+        userId: data[i]["Breeze ID"]
+      } as ImportPersonInterface;
+
+      assignHousehold(households, p);
+      console.log(p)
+      people.push(p);
+    }
+  }
+  return people;
 }
 
 export default readBreezeZip;
