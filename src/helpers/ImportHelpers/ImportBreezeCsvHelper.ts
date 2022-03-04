@@ -36,16 +36,16 @@ const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
   const fileNames = Object.keys(zip.files);
   //console.log(zip)
   const peopleFile = fileNames.find(name => name.match("people"))
-  const tagsFile = fileNames.find(name => name.match("tags"))
-  const notesFile = fileNames.find(name => name.match("notes"))
+  //const tagsFile = fileNames.find(name => name.match("tags"))
+  //const notesFile = fileNames.find(name => name.match("notes"))
   const givingFile = fileNames.find(name => name.match("giving"))
   const eventsFile = fileNames.find(name => name.match("events"))
 
   loadPeople(UploadHelper.readXlsx(await zip.file(peopleFile).async("arraybuffer")));
-  loadTags(UploadHelper.readXlsx(await zip.file(tagsFile).async("arraybuffer")));
-  loadNotes(UploadHelper.readXlsx(await zip.file(notesFile).async("arraybuffer")));
-  loadEvents(UploadHelper.readXlsx(await zip.file(givingFile).async("arraybuffer")));
-  loadDonations(UploadHelper.readXlsx(await zip.file(eventsFile).async("arraybuffer")));
+  //loadTags(UploadHelper.readXlsx(await zip.file(tagsFile).async("arraybuffer")));
+  //loadNotes(UploadHelper.readXlsx(await zip.file(notesFile).async("arraybuffer")));
+  loadEvents(UploadHelper.readXlsx(await zip.file(eventsFile).async("arraybuffer")));
+  loadDonations(UploadHelper.readXlsx(await zip.file(givingFile).async("arraybuffer")));
 
   return {
     people: people,
@@ -84,9 +84,28 @@ const loadNotes = (data: any) => {
 }
 
 const loadEvents = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].title !== undefined) {
-    questions.push(data[i]);
+  for (let i = 0; i < data.length; i++) if (data[i].Name !== undefined) {
+    let group = getOrCreateGroup(groups, data[i]);
+    if (group !== null && group.serviceTimeKey) {
+      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
+      groupServiceTimes.push(gst);
+    }
   }
+  return groups;
+}
+
+const getOrCreateGroup = (groups: ImportGroupInterface[], data: any) => {
+  let result = groups.find(g => g.importKey === data["Event ID"]);
+  if (!result) {
+    result = data as ImportGroupInterface;
+    result.name = data["Name"]
+    result.trackAttendance = (data.trackAttendance === "TRUE");
+    result.parentPickup = (data.parentPickup === "TRUE");
+    if (result.importKey === "" || result.importKey === undefined || result.importKey === null) result.importKey = data["Event ID"];
+    result.id = data.importKey;
+    groups.push(result);
+  }
+  return result;
 }
 
 const loadDonations = (data: any) => {
@@ -149,7 +168,6 @@ const assignHousehold = (households: ImportHouseholdInterface[], person: ImportP
 }
 
 const loadPeople = (data: any) => {
-  console.log("people", data)
   for (let i = 0; i < data.length; i++) {
     if (data[i]["Last Name"] !== undefined) {
       const p = {
@@ -170,7 +188,6 @@ const loadPeople = (data: any) => {
       } as ImportPersonInterface;
 
       assignHousehold(households, p);
-      console.log(p)
       people.push(p);
     }
   }
