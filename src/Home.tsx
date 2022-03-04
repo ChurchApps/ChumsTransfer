@@ -6,6 +6,7 @@ import { DataSourceType } from "./types/index"
 import { ImportPreview } from "./settings/components/ImportPreview";
 import readChumsZip from "./helpers/ImportHelpers/ImportChumsCsvHelper"
 import getChumsData from "./helpers/ImportHelpers/ImportChumsDbHelper"
+import readBreezeZip from "./helpers/ImportHelpers/ImportBreezeCsvHelper"
 import { ImportDataInterface } from "./helpers/ImportHelper";
 
 const dataSourceDropDown = [
@@ -45,7 +46,7 @@ export const Home = () => {
         break;
       }
       case DataSourceType.BREEZE_ZIP: {
-        importData = await readChumsZip(inputRef.current?.files[0])
+        importData = await readBreezeZip(inputRef.current?.files[0])
         break;
       }
       case DataSourceType.PLANNING_CENTER_ZIP: {

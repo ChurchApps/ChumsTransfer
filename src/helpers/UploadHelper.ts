@@ -2,6 +2,8 @@ import Papa from "papaparse";
 import FileSaver from "file-saver";
 import { Buffer } from "buffer"
 import JSZip from "jszip";
+import * as XLSX from "xlsx";
+import * as fs from "fs";
 
 export class UploadHelper {
 
@@ -81,6 +83,17 @@ export class UploadHelper {
       };
       reader.readAsText(file);
     });
+  }
+
+  static readXlsx(arrayBuffer: ArrayBuffer) {
+    let sheetsData: Object[] = [];
+    let workbook = XLSX.read(arrayBuffer);
+    let worksheets = Object.values(workbook.Sheets)
+    worksheets.forEach(sheet => {
+      const data = XLSX.utils.sheet_to_json(sheet, {header: 0});
+      sheetsData.concat(data)
+    })
+    return sheetsData;
   }
 
   static getFile(files: FileList, fileName: string) {
