@@ -109,12 +109,12 @@ const getOrCreateGroup = (groups: ImportGroupInterface[], data: any) => {
 }
 
 const loadDonations = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].amount !== undefined) {
+  for (let i = 0; i < data.length; i++) if (data[i].Amount !== undefined) {
     let d = data[i];
-    let batch = ImportHelper.getOrCreateBatch(batches, d.batch, new Date(d.date));
-    let fund = ImportHelper.getOrCreateFund(funds, d.fund);
-    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d.personKey, donationDate: new Date(d.date), amount: Number.parseFloat(d.amount), method: d.method, methodDetails: d.methodDetails, notes: d.notes } as ImportDonationInterface;
-    let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.amount) } as ImportFundDonationInterface;
+    let batch = ImportHelper.getOrCreateBatch(batches, d.Batch, new Date(d.date));
+    let fund = ImportHelper.getOrCreateFund(funds, d["Fund(s)"]);
+    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d["Person ID"], donationDate: new Date(d.Date), amount: Number.parseFloat(d.Amount), method: d["Method ID"], notes: d.Note ?? "" } as ImportDonationInterface;
+    let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.Amount) } as ImportFundDonationInterface;
     donations.push(donation);
     fundDonations.push(fundDonation);
   }
@@ -180,7 +180,6 @@ const loadPeople = (data: any) => {
         birthDate: data[i]["Birthdate"],
         maritalStatus: data[i]["Marital Status"],
         anniversary: new Date(),
-        photo: "",
         photoUpdated: new Date(),
         householdId: data[i]["Family"],
         householdRole: data[i]["Family Role"],

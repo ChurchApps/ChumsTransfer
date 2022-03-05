@@ -26,16 +26,22 @@ export const Home = () => {
   const handleSelectFile = () => {
     inputRef.current?.click();
   };
+  const handleImportSelection = (e: string) => {
+    setDataImportSource(e)
+    if(e === DataSourceType.CHUMS_DB){
+      importFromDb();
+    }
+  };
   const importFromDb = async () => {
     setImportData(null)
     let importData: ImportDataInterface;
     importData = await getChumsData();
-    console.log("importData", importData)
     setImportData(importData);
   };
   const handleDisplayFileDetails = () => {
     inputRef.current?.files
       && setUploadedFileName(inputRef.current.files[0].name);
+    handleUpload();
   };
   const handleUpload = async () => {
     setImportData(null)
@@ -75,7 +81,7 @@ export const Home = () => {
           <>
             <h2>Step 1 - Import Source</h2>
             <p>Choose data source for import data</p>
-            <DropdownButton id="dropdown-import-types" title={dataImportSource ?? "Choose One"} onSelect={(e) => setDataImportSource(e)}>
+            <DropdownButton id="dropdown-import-types" title={dataImportSource ?? "Choose One"} onSelect={(e) => handleImportSelection(e)}>
               <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums DB</Dropdown.Item>
               <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums zip</Dropdown.Item>
               <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze zip</Dropdown.Item>
@@ -104,13 +110,6 @@ export const Home = () => {
           </>
         )}
 
-        {(dataImportSource && !inputIsFile && importData == null) && (
-          <>
-            <label className="mx-3">Import data from {dataSourceDropDown.find(s => s.value === dataImportSource).label}</label>
-            <button onClick={importFromDb} className="btn btn-outline-primary">Import</button>
-          </>
-        )}
-
         {dataExportSource && (
           <>
             <br></br>
@@ -119,19 +118,6 @@ export const Home = () => {
               className={`btn btn-outline-success`}
             >
               Export data
-            </button>
-          </>
-        )}
-
-        {(inputRef.current && importData == null) && (
-          <>
-            <br></br>
-            <label className="mx-3">{uploadedFileName}</label>
-            <button
-              onClick={handleUpload}
-              className={`btn btn-outline-success`}
-            >
-              Import & Preview
             </button>
           </>
         )}
