@@ -1,12 +1,16 @@
 import React, { useState, useRef } from "react";
 import { Button, Container, Dropdown, DropdownButton } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { Footer, Header } from "./components"
+import { Footer, Header, DisplayBox } from "./components"
 import { DataSourceType } from "./types/index"
 import { ImportPreview } from "./settings/components/ImportPreview";
 import readChumsZip from "./helpers/ImportHelpers/ImportChumsCsvHelper"
 import getChumsData from "./helpers/ImportHelpers/ImportChumsDbHelper"
 import readBreezeZip from "./helpers/ImportHelpers/ImportBreezeCsvHelper"
+import generateBreezeZip from "./helpers/ExportHelpers/ExportBreezeCsvHelper"
+import generateChumsZip from "./helpers/ExportHelpers/ExportChumsCsvHelper"
+import exportToChumsDb from "./helpers/ExportHelpers/ExportChumsDbHelper"
+
 import { ImportDataInterface } from "./helpers/ImportHelper";
 
 const dataSourceDropDown = [
@@ -20,11 +24,19 @@ export const Home = () => {
   const [dataExportSource, setDataExportSource] = useState<string | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [importData, setImportData] = useState<ImportDataInterface | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [status, setStatus] = useState<any>({});
   const inputIsFile = dataImportSource !== DataSourceType.CHUMS_DB;
+  let progress: any = {};
 
   const handleSelectFile = () => {
     inputRef.current?.click();
+  };
+  const handleStartOver = () => {
+    setImportData(null)
+    setDataImportSource(null)
+    setDataExportSource(null)
   };
   const handleImportSelection = (e: string) => {
     setDataImportSource(e)
@@ -32,6 +44,14 @@ export const Home = () => {
       importFromDb();
     }
   };
+  const getProgress = (name: string) => {
+    if (status[name] === undefined) return (<li className="pending" key={name}>{name}</li>);
+    else return (<li className={status[name]} key={name}>{name}</li>);
+  }
+  const setProgress = (name: string, status: string) => {
+    progress[name] = status;
+    setStatus({ ...progress });
+  }
   const importFromDb = async () => {
     setImportData(null)
     let importData: ImportDataInterface;
@@ -65,9 +85,46 @@ export const Home = () => {
     }
     setImportData(importData);
   }
-  const handleExport = () => {
-
+  const handleExport = async (e: string) => {
+    setDataExportSource(e)
+    setIsExporting(true)
+    switch(e) {
+      case DataSourceType.CHUMS_DB: {
+        await exportToChumsDb(importData, setProgress)
+        break;
+      }
+      case DataSourceType.CHUMS_ZIP: {
+        await generateChumsZip(importData, setProgress)
+        break;
+      }
+      case DataSourceType.BREEZE_ZIP: {
+        generateBreezeZip(importData, setProgress)
+        break;
+      }
+      case DataSourceType.PLANNING_CENTER_ZIP: {
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   };
+  const getExportSteps = () => {
+    if (!isExporting) return null;
+    else {
+      let steps = ["Campuses/Services/Times", "People", "Photos", "Groups", "Group Members", "Donations", "Attendance", "Forms", "Questions", "Answers", "Form Submissions", "Compressing"];
+      let stepsHtml: JSX.Element[] = [];
+      steps.forEach((s) => stepsHtml.push(getProgress(s)));
+
+      return (
+        <DisplayBox headerText="Export" headerIcon="fas fa-download">
+          Exporting content:
+          <ul className="statusList">{stepsHtml}</ul>
+          <p>This process may take some time.  It is important that you do not close your browser until it has finished.</p>
+        </DisplayBox>
+      );
+    }
+  }
   return (
     <>
       <Header />
@@ -87,18 +144,22 @@ export const Home = () => {
               <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze zip</Dropdown.Item>
               <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning center zip</Dropdown.Item>
             </DropdownButton>
+            <br></br>
+            <br></br>
           </>
         )}
         {importData && (
           <>
             <h2>Step 2 - Export</h2>
             <p>Choose export format</p>
-            <DropdownButton id="dropdown-export-types" title={dataExportSource ?? "Choose One"} onSelect={(e) => setDataExportSource(e)}>
+            <DropdownButton id="dropdown-export-types" title={dataExportSource ?? "Choose One"} onSelect={(e) => handleExport(e)}>
               <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums DB</Dropdown.Item>
               <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums zip</Dropdown.Item>
               <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze zip</Dropdown.Item>
               <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning center zip</Dropdown.Item>
             </DropdownButton>
+            <br></br>
+            <br></br>
           </>
         )}
 
@@ -110,16 +171,11 @@ export const Home = () => {
           </>
         )}
 
-        {dataExportSource && (
-          <>
-            <br></br>
-            <button
-              onClick={handleExport}
-              className={`btn btn-outline-success`}
-            >
-              Export data
-            </button>
-          </>
+        {importData && (
+          <button onClick={handleStartOver} className="btn btn-outline-danger">Start Over</button>
+        )}
+        {isExporting && (
+          <div>{getExportSteps()}</div>
         )}
 
         {importData && (

@@ -86,8 +86,7 @@ const getCampusServiceTimes = async () => {
 const getPeople = async () => {
   people = await ApiHelper.get("/people", "MembershipApi");
   people.forEach((p) => {
-    console.log(p)
-    p.photo = p.photo !== "" ? `${EnvironmentHelper.ContentRoot}${p.photo}`: p.photo;
+    p.photo = PersonHelper.getPhotoUrl(p);
     p.householdKey =p.householdId
     if(households.find(h => h.importKey === p.householdId) === undefined) households.push({importKey: p.householdId, name: p.name.last})
   });

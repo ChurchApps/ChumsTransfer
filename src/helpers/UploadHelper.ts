@@ -3,8 +3,6 @@ import FileSaver from "file-saver";
 import { Buffer } from "buffer"
 import JSZip from "jszip";
 import * as XLSX from "xlsx";
-import * as fs from "fs";
-
 export class UploadHelper {
 
   static zipFiles(files: { name: string, contents: string | Buffer }[], zipFileName: string) {
@@ -31,7 +29,8 @@ export class UploadHelper {
           resolve();
         };
         oReq.send();
-      } catch {
+      } catch(e) {
+        console.log(e)
         reject(new DOMException("Could not download image."));
       }
     });

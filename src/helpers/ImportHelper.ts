@@ -5,7 +5,7 @@ export interface ImportServiceInterface extends ServiceInterface { importKey: st
 export interface ImportServiceTimeInterface extends ServiceTimeInterface { importKey?: string, serviceKey?: string }
 
 export interface ImportGroupServiceTimeInterface extends GroupServiceTimeInterface { importKey: string, groupKey?: string, serviceTimeKey?: string }
-export interface ImportGroupInterface extends GroupInterface { importKey: string, serviceTimeKey: string }
+export interface ImportGroupInterface extends GroupInterface { importKey: string, serviceTimeKey: string, startDate: Date, endDate: Date }
 export interface ImportGroupMemberInterface extends GroupMemberInterface { groupKey: string, personKey: string }
 
 export interface ImportPersonInterface extends PersonInterface { importKey: string, householdKey?: string, }

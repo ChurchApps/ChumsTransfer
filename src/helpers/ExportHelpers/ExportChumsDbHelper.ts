@@ -31,49 +31,8 @@ let questions: ImportQuestionsInterface[] = [];
 let formSubmissions: ImportFormSubmissions[] = [];
 let answers:ImportAnswerInterface[] = [];
 
-const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
-  const zip = await JSZip.loadAsync(file);
-  const fileNames = Object.keys(zip.files);
-  const peopleFile = fileNames.find(name => name.match("people"))
-  //const tagsFile = fileNames.find(name => name.match("tags"))
-  //const notesFile = fileNames.find(name => name.match("notes"))
-  const givingFile = fileNames.find(name => name.match("giving"))
-  const eventsFile = fileNames.find(name => name.match("events"))
+const exportToChumsDb = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
 
-  loadPeople(UploadHelper.readXlsx(await zip.file(peopleFile).async("arraybuffer")));
-  //loadTags(UploadHelper.readXlsx(await zip.file(tagsFile).async("arraybuffer")));
-  //loadNotes(UploadHelper.readXlsx(await zip.file(notesFile).async("arraybuffer")));
-  loadEvents(UploadHelper.readXlsx(await zip.file(eventsFile).async("arraybuffer")));
-  loadDonations(UploadHelper.readXlsx(await zip.file(givingFile).async("arraybuffer")));
-
-  return {
-    people: people,
-    households: households,
-    campuses: campuses,
-    services: services,
-    serviceTimes: serviceTimes,
-    groupServiceTimes: groupServiceTimes,
-    groups: groups,
-    groupMembers: groupMembers,
-    visits: visits,
-    sessions: sessions,
-    visitSessions: visitSessions,
-    batches: batches,
-    donations: donations,
-    funds: funds,
-    fundDonations: fundDonations,
-    forms: forms,
-    questions: questions,
-    formSubmissions: formSubmissions,
-    answers: answers
-  } as ImportDataInterface;
-
-}
-
-const loadTags = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].value !== undefined) {
-    answers.push(data[i]);
-  }
 }
 
 const loadNotes = (data: any) => {
@@ -192,4 +151,4 @@ const loadPeople = (data: any) => {
   return people;
 }
 
-export default readBreezeZip;
+export default exportToChumsDb;
