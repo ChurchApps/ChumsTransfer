@@ -2,6 +2,7 @@ import { UploadHelper } from "../UploadHelper";
 import { ApiHelper } from "../../appBase/helpers/ApiHelper";
 import { ArrayHelper } from "../../appBase/helpers/ArrayHelper";
 import { PersonHelper } from "../PersonHelper";
+import { EnvironmentHelper } from "../EnvironmentHelper";
 
 import Papa from "papaparse";
 import {
@@ -85,6 +86,8 @@ const getCampusServiceTimes = async () => {
 const getPeople = async () => {
   people = await ApiHelper.get("/people", "MembershipApi");
   people.forEach((p) => {
+    console.log(p)
+    p.photo = p.photo !== "" ? `${EnvironmentHelper.ContentRoot}${p.photo}`: p.photo;
     p.householdKey =p.householdId
     if(households.find(h => h.importKey === p.householdId) === undefined) households.push({importKey: p.householdId, name: p.name.last})
   });

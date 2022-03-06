@@ -27,7 +27,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
             let r = m + j + 1
             y = r * loop;
             let p = members[j];
-            let imgTag = (p.photo === undefined) ? null : <img src={p.photo} className="personPhoto" alt="person" />;
+            let imgTag = (p.photo === undefined || p.photo === "") ? null : <img src={p.photo} className="personPhoto" alt="person" />;
             rows.push(<tr key={y}><td>{imgTag}</td><td>{p.name.first}</td><td>{p.name.last}</td></tr>);
           }
         }
