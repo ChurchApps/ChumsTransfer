@@ -5,14 +5,18 @@ import JSZip from "jszip";
 import * as XLSX from "xlsx";
 import * as fs from "fs";
 
-export class UploadHelper {
+export class DownloadHelper {
 
   static createCsv(data: Object[]) {
 
   }
 
-  static createXlsx(data: Object[]) {
-
+  static createXlxs(data: Object[]) {
+    let workbook = XLSX.utils.book_new();
+    let worksheet = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet One");
+    let buffer = XLSX.write(workbook, {type: "buffer"});
+    return buffer;
   }
 
   static getFile(files: FileList, fileName: string) {

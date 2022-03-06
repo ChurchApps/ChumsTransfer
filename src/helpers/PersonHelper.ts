@@ -9,7 +9,7 @@ export class PersonHelper extends BasePersonHelper {
     return person.photo.startsWith("data:image/png;base64,") ? person.photo : EnvironmentHelper.ContentRoot + person.photo;
   }
   static calculateAge(birthday: Date) {
-    let ageDifMs = new Date().getTime() - birthday.getTime();
+    let ageDifMs = new Date().getTime() - new Date(birthday).getTime();
     let ageDate = new Date(ageDifMs);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   }

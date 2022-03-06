@@ -1,4 +1,4 @@
-import { UploadHelper, PersonHelper, PersonInterface } from "..";
+import { UploadHelper, PersonHelper, PersonInterface, DownloadHelper } from "..";
 import { ArrayHelper } from "../../appBase/helpers/ArrayHelper";
 import {
   ImportHelper
@@ -8,9 +8,8 @@ import {
   , ImportDonationBatchInterface, ImportFundInterface, ImportDonationInterface
   , ImportDataInterface
 } from "../ImportHelper";
-import Papa from "papaparse";
 
-const generateChumsZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
+const generateBreezeZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
   let files = [];
 
   updateProgress("Campuses/Services/Times", "running");
@@ -18,7 +17,10 @@ const generateChumsZip = async (importData: ImportDataInterface, updateProgress:
   updateProgress("Campuses/Services/Times", "complete");
 
   updateProgress("People", "running");
-  files.push({ name: `people-${new Date().toISOString().split("T")[0]}.xlsx`, contents: await getPeople(importData) });
+  let peopleFileName = `people-${new Date().toISOString().split("T")[0]}.xlsx`;
+  let peopleData = await getPeople(importData);
+  let peopleXlxsBuffer = DownloadHelper.createXlxs(peopleData)
+  files.push({ name: peopleFileName, contents: peopleXlxsBuffer });
   updateProgress("People", "complete");
 
   updateProgress("Photos", "running");
@@ -26,7 +28,10 @@ const generateChumsZip = async (importData: ImportDataInterface, updateProgress:
   updateProgress("Photos", "complete");
 
   updateProgress("Groups", "running");
-  files.push({ name: `events-${new Date().toISOString().split("T")[0]}.xlsx`, contents: await getGroups(importData) });
+  let groupsFileName = `events-${new Date().toISOString().split("T")[0]}.xlsx`;
+  let eventData = await getGroups(importData);
+  let eventXlxsBuffer = DownloadHelper.createXlxs(eventData)
+  files.push({ name: groupsFileName, contents: eventXlxsBuffer });
   updateProgress("Groups", "complete");
 
   updateProgress("Group Members", "running");
@@ -34,7 +39,10 @@ const generateChumsZip = async (importData: ImportDataInterface, updateProgress:
   updateProgress("Group Members", "complete");
 
   updateProgress("Donations", "running");
-  files.push({ name: `giving-${new Date().toISOString().split("T")[0]}.xlsx`, contents: await getDonations(importData) });
+  let donationsFileName = `giving-${new Date().toISOString().split("T")[0]}.xlsx`;
+  let dontationData = await getDonations(importData);
+  let donationXlxsBuffer = DownloadHelper.createXlxs(dontationData)
+  files.push({ name: donationsFileName, contents: donationXlxsBuffer });
   updateProgress("Donations", "complete");
 
   updateProgress("Attendance", "running");
@@ -58,7 +66,7 @@ const generateChumsZip = async (importData: ImportDataInterface, updateProgress:
   updateProgress("Answers", "complete");
 
   updateProgress("Compressing", "running");
-  UploadHelper.zipFiles(files, "export.zip");
+  UploadHelper.zipFiles(files, "BreezeExport.zip");
   updateProgress("Compressing", "complete");
 }
 const getCampusServiceTimes = async (importData : ImportDataInterface) => {
@@ -75,7 +83,7 @@ const getCampusServiceTimes = async (importData : ImportDataInterface) => {
     }
     data.push(row);
   });
-  return Papa.unparse(data);
+  return data;
 }
 
 const getPeople = async (importData : ImportDataInterface) => {
@@ -93,7 +101,7 @@ const getPeople = async (importData : ImportDataInterface) => {
       Status: p.membershipStatus,
       "Marital Status": p.maritalStatus,
       Birthdate: p.birthDate,
-      "Birthdate Month/Day": p.birthDate.getMonth() + "/" + p.birthDate.getDay(),
+      "Birthdate Month/Day": new Date(p.birthDate).getMonth() + "/" + new Date(p.birthDate).getDay(),
       Age: PersonHelper.calculateAge(p.birthDate),
       Family: p.name.last,
       "Family Role": p.householdRole,
@@ -114,7 +122,7 @@ const getPeople = async (importData : ImportDataInterface) => {
     }
     data.push(row);
   });
-  return Papa.unparse(data);
+  return data;
 }
 
 const getGroups = async (importData : ImportDataInterface) => {
@@ -136,7 +144,7 @@ const getGroups = async (importData : ImportDataInterface) => {
       data.push(row);
     });
   });
-  return Papa.unparse(data);
+  return data;
 }
 
 const getQuestions = async (importData : ImportDataInterface) => {
@@ -152,7 +160,7 @@ const getQuestions = async (importData : ImportDataInterface) => {
     data.push(row);
   })
 
-  return Papa.unparse(data);
+  return data;
 }
 
 const getFormSubmissions = async (importData : ImportDataInterface) => {
@@ -167,7 +175,7 @@ const getFormSubmissions = async (importData : ImportDataInterface) => {
     data.push(row);
   })
 
-  return Papa.unparse(data);
+  return data;
 }
 
 const getAnswers = async (importData : ImportDataInterface) => {
@@ -182,7 +190,7 @@ const getAnswers = async (importData : ImportDataInterface) => {
     data.push(row);
   })
 
-  return Papa.unparse(data);
+  return data;
 }
 
 const getGroupMembers = async (importData : ImportDataInterface) => {
@@ -192,7 +200,7 @@ const getGroupMembers = async (importData : ImportDataInterface) => {
     let row = { groupKey: gm.groupId, personKey: gm.personId }
     data.push(row);
   });
-  return Papa.unparse(data);
+  return data;
 }
 
 const getDonations = async (importData : ImportDataInterface) => {
@@ -203,23 +211,23 @@ const getDonations = async (importData : ImportDataInterface) => {
     let donation: ImportDonationInterface = ImportHelper.getById(donations, fd.donationId);
     let batch: ImportDonationBatchInterface = ImportHelper.getById(batches, donation.batchId);
     let row = {
-      Date: batch.id,
-      Batch: donation.donationDate,
-      "Payment ID": donation.personId,
-      "Person ID": donation.method,
-      "First Name": donation.methodDetails,
-      "Last Name": donation.amount,
-      Amount: fund.name,
-      "Fund(s)": donation.notes,
-      "Method ID": donation.notes,
-      "Account Number": donation.notes,
-      "Check Number": donation.notes,
-      Card: donation.notes,
+      Date: batch.batchDate,
+      Batch: donation.batchId,
+      "Payment ID": "",
+      "Person ID": donation.personId,
+      "First Name": donation.person?.name.first,
+      "Last Name": donation.person?.name.last,
+      Amount: donation.amount,
+      "Fund(s)": fund?.name,
+      "Method ID": donation.method,
+      "Account Number": "",
+      "Check Number": "",
+      Card: donation.methodDetails,
       Note: donation.notes
     }
     data.push(row);
   });
-  return Papa.unparse(data);
+  return data;
 }
 
 const getAttendance = async (importData : ImportDataInterface) => {
@@ -238,7 +246,7 @@ const getAttendance = async (importData : ImportDataInterface) => {
       data.push(row);
     }
   });
-  return Papa.unparse(data);
+  return data;
 }
 
 const getPhotos = (people: PersonInterface[], files: { name: string, contents: string | Buffer }[]) => {
@@ -249,4 +257,4 @@ const getPhotos = (people: PersonInterface[], files: { name: string, contents: s
   Promise.all(result);
 }
 
-export default generateChumsZip;
+export default generateBreezeZip;

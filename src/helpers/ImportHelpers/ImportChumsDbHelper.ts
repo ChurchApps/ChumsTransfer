@@ -132,24 +132,10 @@ const getDonations = async () => {
   promises.push(ApiHelper.get("/donations", "GivingApi").then(data => donations = data));
   promises.push(ApiHelper.get("/funddonations", "GivingApi").then(data => fundDonations = data));
   await Promise.all(promises);
-  let data: any[] = [];
-  fundDonations.forEach((fd) => {
-    let fund: ImportFundInterface = ImportHelper.getById(funds, fd.fundId);
-    let donation: ImportDonationInterface = ImportHelper.getById(donations, fd.donationId);
-    let batch: ImportDonationBatchInterface = ImportHelper.getById(batches, donation.batchId);
-    let row = {
-      batch: batch.id,
-      date: donation.donationDate,
-      personKey: donation.personId,
-      method: donation.method,
-      methodDetails: donation.methodDetails,
-      amount: donation.amount,
-      fund: fund.name,
-      notes: donation.notes
-    }
-    data.push(row);
+  donations.forEach((d) => {
+    let person = people.find(p => p.id === d.personId)
+    if(person) d.person = person;
   });
-  return Papa.unparse(data);
 }
 
 const getAttendance = async () => {

@@ -58,7 +58,7 @@ const generateChumsZip = async (importData: ImportDataInterface, updateProgress:
   updateProgress("Answers", "complete");
 
   updateProgress("Compressing", "running");
-  UploadHelper.zipFiles(files, "export.zip");
+  UploadHelper.zipFiles(files, "ChumsExport.zip");
   updateProgress("Compressing", "complete");
 }
 const getCampusServiceTimes = async (importData : ImportDataInterface) => {
