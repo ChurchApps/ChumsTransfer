@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import { Footer, Header, DisplayBox } from "./components"
 import { DataSourceType } from "./types/index"
 import { ImportPreview } from "./settings/components/ImportPreview";
-import readChumsZip from "./helpers/ImportHelpers/ImportChumsCsvHelper"
+import readChumsZip from "./helpers/ImportHelpers/ImportChumsZipHelper"
 import getChumsData from "./helpers/ImportHelpers/ImportChumsDbHelper"
-import readBreezeZip from "./helpers/ImportHelpers/ImportBreezeCsvHelper"
-import generateBreezeZip from "./helpers/ExportHelpers/ExportBreezeCsvHelper"
-import generateChumsZip from "./helpers/ExportHelpers/ExportChumsCsvHelper"
+import readBreezeZip from "./helpers/ImportHelpers/ImportBreezeZipHelper"
+import generateBreezeZip from "./helpers/ExportHelpers/ExportBreezeZipHelper"
+import generateChumsZip from "./helpers/ExportHelpers/ExportChumsZipHelper"
 import exportToChumsDb from "./helpers/ExportHelpers/ExportChumsDbHelper"
 
 import { ImportDataInterface } from "./helpers/ImportHelper";
@@ -37,6 +37,8 @@ export const Home = () => {
     setImportData(null)
     setDataImportSource(null)
     setDataExportSource(null)
+    setIsExporting(false)
+    setStatus({})
   };
   const handleImportSelection = (e: string) => {
     setDataImportSource(e)

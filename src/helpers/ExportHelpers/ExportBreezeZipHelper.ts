@@ -132,7 +132,7 @@ const getGroups = async (importData : ImportDataInterface) => {
     let serviceTimeIds: string[] = [];
     let gst: ImportGroupServiceTimeInterface[] = ArrayHelper.getAll(groupServiceTimes, "groupId", g.id);
     if (gst.length === 0) serviceTimeIds = [""];
-    else gst.forEach((time) => { serviceTimeIds.push(time.serviceTimeId.toString()) });
+    else gst.forEach((time) => time?.serviceTimeId ? serviceTimeIds.push(time?.serviceTimeId?.toString()) : null );
     serviceTimeIds.forEach((serviceTimeId) => {
       let row = {
         "Event ID": g.importKey,
@@ -204,21 +204,19 @@ const getGroupMembers = async (importData : ImportDataInterface) => {
 }
 
 const getDonations = async (importData : ImportDataInterface) => {
-  const {funds, batches, donations, fundDonations} = importData;
+  const {batches, donations} = importData;
   let data: any[] = [];
-  fundDonations.forEach((fd) => {
-    let fund: ImportFundInterface = ImportHelper.getById(funds, fd.fundId);
-    let donation: ImportDonationInterface = ImportHelper.getById(donations, fd.donationId);
-    let batch: ImportDonationBatchInterface = ImportHelper.getById(batches, donation.batchId);
+  donations.forEach((donation) => {
+    let batch: ImportDonationBatchInterface = ImportHelper.getByImportKey(batches, donation.batchKey);
     let row = {
       Date: batch.batchDate,
-      Batch: donation.batchId,
+      Batch: donation.batchKey,
       "Payment ID": "",
-      "Person ID": donation.personId,
+      "Person ID": donation.personKey,
       "First Name": donation.person?.name.first,
       "Last Name": donation.person?.name.last,
       Amount: donation.amount,
-      "Fund(s)": fund?.name,
+      "Fund(s)": donation.fund?.name,
       "Method ID": donation.method,
       "Account Number": "",
       "Check Number": "",
