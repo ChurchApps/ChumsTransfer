@@ -86,6 +86,7 @@ const getCampusServiceTimes = async () => {
 const getPeople = async () => {
   people = await ApiHelper.get("/people", "MembershipApi");
   people.forEach((p) => {
+    p.importKey = p.id
     p.photo = PersonHelper.getPhotoUrl(p);
     p.householdKey =p.householdId
     if(households.find(h => h.importKey === p.householdId) === undefined) households.push({importKey: p.householdId, name: p.name.last})
@@ -135,6 +136,11 @@ const getDonations = async () => {
   donations.forEach((d) => {
     let person = people.find(p => p.id === d.personId)
     if(person) d.person = person;
+    let fd = fundDonations.find(fd => fd.donationId === d.id)
+    if(fd) d.fund = funds.find(f => f.id === fd.fundId)
+  });
+  funds.forEach((f) => {
+    f.importKey = f.id
   });
 }
 

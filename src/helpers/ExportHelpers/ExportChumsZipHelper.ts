@@ -191,14 +191,13 @@ const getGroupMembers = async (importData : ImportDataInterface) => {
 const getDonations = async (importData : ImportDataInterface) => {
   const {funds, batches, donations, fundDonations} = importData;
   let data: any[] = [];
-  fundDonations.forEach((fd) => {
-    let fund: ImportFundInterface = ImportHelper.getById(funds, fd.fundId);
-    let donation: ImportDonationInterface = ImportHelper.getById(donations, fd.donationId);
+  donations.forEach((donation) => {
+    let fund: ImportFundInterface = ImportHelper.getById(funds, donation.fund?.id);
     let batch: ImportDonationBatchInterface = ImportHelper.getById(batches, donation.batchId);
     let row = {
       batch: batch.id,
       date: donation.donationDate,
-      personKey: donation.personId,
+      personKey: donation.person?.id,
       method: donation.method,
       methodDetails: donation.methodDetails,
       amount: donation.amount,

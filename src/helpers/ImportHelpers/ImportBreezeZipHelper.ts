@@ -112,7 +112,8 @@ const loadDonations = (data: any) => {
     let d = data[i];
     let batch = ImportHelper.getOrCreateBatch(batches, d.Batch, new Date(d.date));
     let fund = ImportHelper.getOrCreateFund(funds, d["Fund(s)"]);
-    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d["Person ID"], donationDate: new Date(d.Date), amount: Number.parseFloat(d.Amount), method: d["Method ID"], notes: d.Note ?? "" } as ImportDonationInterface;
+    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d["Person ID"], personId: d["Person ID"], donationDate: new Date(d.Date), amount: Number.parseFloat(d.Amount), method: d["Method ID"], notes: d.Note ?? "", fund: fund } as ImportDonationInterface;
+    donation.person = people.find(p => p.importKey === donation.personKey)
     let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.Amount) } as ImportFundDonationInterface;
     donations.push(donation);
     fundDonations.push(fundDonation);
@@ -170,19 +171,16 @@ const loadPeople = (data: any) => {
   for (let i = 0; i < data.length; i++) {
     if (data[i]["Last Name"] !== undefined) {
       const p = {
-        importKey: data[i]["Breeze ID"],
-        id: data[i]["Breeze ID"],
-        name: { first: data[i]["First Name"], middle: data[i]["Middle Name"], last: data[i]["Last Name"], nick: data[i]["Nickname"], display: `${data[i]["First Name"]} ${data[i]["Last Name"]}` } as NameInterface,
-        contactInfo: { address1: data[i]["Street Address"], address2: "", city: data[i]["City"], state: data[i]["State"], zip: data[i]["Zip"], homePhone: data[i]["Home"], mobilePhone: data[i]["Mobile"], workPhone: data[i]["Work"], email: data[i]["Email"] } as ContactInfoInterface,
-        membershipStatus: data[i]["Status"],
-        gender: data[i]["Gender"],
-        birthDate: data[i]["Birthdate"],
-        maritalStatus: data[i]["Marital Status"],
-        anniversary: new Date(),
-        photoUpdated: new Date(),
-        householdId: data[i]["Family"],
-        householdRole: data[i]["Family Role"],
-        userId: data[i]["Breeze ID"]
+        importKey: data[i]["Breeze ID"] ?? "",
+        name: { first: data[i]["First Name"] ?? "", middle: data[i]["Middle Name"] ?? "", last: data[i]["Last Name"] ?? "", nick: data[i]["Nickname"] ?? "", display: `${data[i]["First Name"] ?? ""} ${data[i]["Last Name"] ?? ""}` } as NameInterface,
+        contactInfo: { address1: data[i]["Street Address"] ?? "", address2: "", city: data[i]["City"] ?? "", state: data[i]["State"] ?? "", zip: data[i]["Zip"] ?? "", homePhone: data[i]["Home"] ?? "", mobilePhone: data[i]["Mobile"] ?? "", workPhone: data[i]["Work"] ?? "", email: data[i]["Email"] ?? "" } as ContactInfoInterface,
+        membershipStatus: data[i]["Status"] ?? "",
+        gender: data[i]["Gender"] ?? "",
+        birthDate: data[i]["Birthdate"] ?? "",
+        maritalStatus: data[i]["Marital Status"] ?? "",
+        householdId: data[i]["Family"] ?? "",
+        householdRole: data[i]["Family Role"] ?? "",
+        userId: data[i]["Breeze ID"] ?? ""
       } as ImportPersonInterface;
 
       assignHousehold(households, p);

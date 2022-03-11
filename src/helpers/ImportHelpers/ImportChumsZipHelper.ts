@@ -97,7 +97,7 @@ const loadDonations = (data: any) => {
     let d = data[i];
     let batch = ImportHelper.getOrCreateBatch(batches, d.batch, new Date(d.date));
     let fund = ImportHelper.getOrCreateFund(funds, d.fund);
-    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d.personKey, donationDate: new Date(d.date), amount: Number.parseFloat(d.amount), method: d.method, methodDetails: d.methodDetails, notes: d.notes, fund: fund } as ImportDonationInterface;
+    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d.personKey, personId: d.personKey, donationDate: new Date(d.date), amount: Number.parseFloat(d.amount), method: d.method, methodDetails: d.methodDetails, notes: d.notes, fund: fund } as ImportDonationInterface;
     let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.amount) } as ImportFundDonationInterface;
     let donationPerson = people.find(p => p.importKey === donation.personKey);
     if(donationPerson) donation.person = donationPerson;
@@ -149,10 +149,8 @@ const loadPeople = (data: any, zip: any) => {
   for (let i = 0; i < data.length; i++) {
     if (data[i].lastName !== undefined) {
       const p = data[i] as ImportPersonInterface;
-      p.id = p.importKey;
-      p.name = { first: data[i].firstName, last: data[i].lastName, middle: data[i].middleName, nick: data[i].nickName, display: data[i].displayName }
-      p.contactInfo = { address1: data[i].address1, address2: data[i].address2, city: data[i].city, state: data[i].state, zip: data[i].zip, homePhone: data[i].homePhone, workPhone: data[i].workPhone, email: data[i].email }
-
+      p.name = { first: data[i].firstName ?? "", last: data[i].lastName ?? "", middle: data[i].middleName ?? "", nick: data[i].nickName ?? "", display: data[i].displayName ?? "" }
+      p.contactInfo = { address1: data[i].address1 ?? "", address2: data[i].address2 ?? "", city: data[i].city ?? "", state: data[i].state ?? "", zip: data[i].zip ?? "", homePhone: data[i].homePhone ?? "", workPhone: data[i].workPhone ?? "", email: data[i].email ?? ""}
       assignHousehold(households, data[i]);
       if (p.photo !== undefined) {
         zip?.file(p.photo)?.async("base64").then((data: any) => {

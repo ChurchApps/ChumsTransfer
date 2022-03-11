@@ -212,7 +212,7 @@ const getDonations = async (importData : ImportDataInterface) => {
       Date: batch.batchDate,
       Batch: donation.batchKey,
       "Payment ID": "",
-      "Person ID": donation.personKey,
+      "Person ID": donation.person?.id,
       "First Name": donation.person?.name.first,
       "Last Name": donation.person?.name.last,
       Amount: donation.amount,

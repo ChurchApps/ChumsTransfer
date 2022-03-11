@@ -70,7 +70,8 @@ export class ImportHelper {
   static getOrCreateFund(funds: ImportFundInterface[], name: string) {
     let result = ArrayHelper.getOne(funds, "name", name);
     if (result === null) {
-      result = { importKey: (funds.length + 1).toString(), name: name } as ImportFundInterface;
+      let id = (funds.length + 1).toString();
+      result = { importKey: id, id: id, name: name } as ImportFundInterface;
       funds.push(result);
     }
     return result;

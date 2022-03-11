@@ -115,6 +115,7 @@ export const Home = () => {
     if (!isExporting) return null;
     else {
       let steps = ["Campuses/Services/Times", "People", "Photos", "Groups", "Group Members", "Donations", "Attendance", "Forms", "Questions", "Answers", "Form Submissions", "Compressing"];
+      if(dataExportSource === DataSourceType.CHUMS_DB)steps = steps.filter(s => s !== "Compressing")
       let stepsHtml: JSX.Element[] = [];
       steps.forEach((s) => stepsHtml.push(getProgress(s)));
 

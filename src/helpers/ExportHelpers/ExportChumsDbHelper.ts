@@ -1,4 +1,3 @@
-import { UploadHelper } from "../UploadHelper";
 import {
   ImportHelper, ImportPersonInterface, ImportHouseholdInterface
   , ImportCampusInterface, ImportServiceInterface, ImportServiceTimeInterface
@@ -8,147 +7,297 @@ import {
   , ImportFundDonationInterface, ImportDataInterface, ImportFormsInterface
   , ImportQuestionsInterface, ImportFormSubmissions, ImportAnswerInterface
 } from "../ImportHelper";
-import JSZip from "jszip";
-import { ContactInfoInterface, NameInterface } from "..";
+import { ApiHelper } from "../../helpers";
 
-let people: ImportPersonInterface[] = [];
-let households: ImportHouseholdInterface[] = [];
-let campuses: ImportCampusInterface[] = [];
-let services: ImportServiceInterface[] = [];
-let serviceTimes: ImportServiceTimeInterface[] = [];
-let groupServiceTimes: ImportGroupServiceTimeInterface[] = [];
-let groups: ImportGroupInterface[] = [];
-let groupMembers: ImportGroupMemberInterface[] = [];
-let sessions: ImportSessionInterface[] = [];
-let visits: ImportVisitInterface[] = [];
-let visitSessions: ImportVisitSessionInterface[] = [];
-let batches: ImportDonationBatchInterface[] = [];
-let funds: ImportFundInterface[] = [];
-let donations: ImportDonationInterface[] = [];
-let fundDonations:ImportFundDonationInterface[] = [];
-let forms: ImportFormsInterface[] = [];
-let questions: ImportQuestionsInterface[] = [];
-let formSubmissions: ImportFormSubmissions[] = [];
-let answers:ImportAnswerInterface[] = [];
+const exportToChumsDb = async (exportData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
 
-const exportToChumsDb = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
-
-}
-
-const loadNotes = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined) {
-    formSubmissions.push(data[i]);
+  const runImport = async (keyName: string, code: () => void) => {
+    updateProgress(keyName, "running");
+    await code();
+    updateProgress(keyName, "complete");
   }
+
+  let campusResult = await exportCampuses(exportData, runImport);
+  let tmpPeople = await exportPeople(exportData, runImport);
+  let tmpGroups = await exportGroups(exportData, tmpPeople, campusResult.serviceTimes, runImport);
+  await exportAttendance(exportData, tmpPeople, tmpGroups, campusResult.services, campusResult.serviceTimes, runImport);
+  await exportDonations(exportData, tmpPeople, runImport);
+  await exportForms(exportData, tmpPeople, runImport);
 }
 
-const loadEvents = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].Name !== undefined) {
-    let group = getOrCreateGroup(groups, data[i]);
-    if (group !== null && group.serviceTimeKey) {
-      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-      groupServiceTimes.push(gst);
+const exportCampuses = async (exportData: ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  let tmpCampuses: ImportCampusInterface[] = [...exportData.campuses];
+  let tmpServices: ImportServiceInterface[] = [...exportData.services];
+  let tmpServiceTimes: ImportServiceTimeInterface[] = [...exportData.serviceTimes];
+
+  await runImport("Campuses/Services/Times", async () => {
+    if(tmpCampuses.length > 0) {
+      await ApiHelper.post("/campuses", tmpCampuses, "AttendanceApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpCampuses[i].id = result[i].id;
+      });
     }
-  }
-  return groups;
-}
 
-const getOrCreateGroup = (groups: ImportGroupInterface[], data: any) => {
-  let result = groups.find(g => g.importKey === data["Event ID"]);
-  if (!result) {
-    result = data as ImportGroupInterface;
-    result.name = data["Name"]
-    result.trackAttendance = (data.trackAttendance === "TRUE");
-    result.parentPickup = (data.parentPickup === "TRUE");
-    if (result.importKey === "" || result.importKey === undefined || result.importKey === null) result.importKey = data["Event ID"];
-    result.id = data.importKey;
-    groups.push(result);
-  }
-  return result;
-}
-
-const loadDonations = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].Amount !== undefined) {
-    let d = data[i];
-    let batch = ImportHelper.getOrCreateBatch(batches, d.Batch, new Date(d.date));
-    let fund = ImportHelper.getOrCreateFund(funds, d["Fund(s)"]);
-    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d["Person ID"], donationDate: new Date(d.Date), amount: Number.parseFloat(d.Amount), method: d["Method ID"], notes: d.Note ?? "" } as ImportDonationInterface;
-    let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.Amount) } as ImportFundDonationInterface;
-    donations.push(donation);
-    fundDonations.push(fundDonation);
-  }
-}
-
-const loadAttendance = (data: any, tmpServiceTimes: ImportServiceTimeInterface[]) => {
-  for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined && data[i].groupKey !== undefined) {
-    let session = ImportHelper.getOrCreateSession(sessions, new Date(data[i].date), data[i].groupKey, data[i].serviceTimeKey);
-    let visit = ImportHelper.getOrCreateVisit(visits, data[i], tmpServiceTimes);
-    let visitSession = { visitKey: visit.importKey, sessionKey: session.importKey } as ImportVisitSessionInterface;
-    visitSessions.push(visitSession);
-
-    let group = groups.find(group => group.importKey === data[i].groupKey);
-    if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-      if(groupServiceTimes.find(gst => gst.groupKey === group.importKey && gst.serviceTimeKey === group.serviceTimeKey) === undefined) groupServiceTimes.push(gst);
+    if(tmpServices.length > 0) {
+      tmpServices.forEach((s) => { s.campusId = ImportHelper.getByImportKey(tmpCampuses, s.campusKey).id });
+      await ApiHelper.post("/services", tmpServices, "AttendanceApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpServices[i].id = result[i].id;
+      });
     }
-  }
-}
 
-const loadServiceTimes = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].time !== undefined) {
-    let campus = ImportHelper.getOrCreateCampus(campuses, data[i].campus);
-    let service = ImportHelper.getOrCreateService(services, data[i].service, campus);
-    ImportHelper.getOrCreateServiceTime(serviceTimes, data[i], service);
-  }
-  return serviceTimes;
-}
-
-const loadGroups = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].name !== undefined) {
-    let group = ImportHelper.getOrCreateGroup(groups, data[i]);
-    if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-      groupServiceTimes.push(gst);
+    if(tmpServiceTimes.length > 0) {
+      tmpServiceTimes.forEach((st) => { st.serviceId = ImportHelper.getByImportKey(tmpServices, st.serviceKey).id });
+      await ApiHelper.post("/servicetimes", tmpServiceTimes, "AttendanceApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpServiceTimes[i].id = result[i].id;
+      });
     }
-  }
-  return groups;
+  });
+  return { campuses: tmpCampuses, services: tmpServices, serviceTimes: tmpServiceTimes };
 }
 
-const loadGroupMembers = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].groupKey !== undefined) groupMembers.push(data[i] as ImportGroupMemberInterface);
-}
+const exportPeople = async (exportData: ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  let tmpPeople: ImportPersonInterface[] = [...exportData.people];
+  let tmpHouseholds: ImportHouseholdInterface[] = [...exportData.households];
 
-const assignHousehold = (households: ImportHouseholdInterface[], person: ImportPersonInterface) => {
-  let householdName: string = person.name.last ?? "";
-  if (households.length === 0 || households[households.length - 1].name !== householdName) {
-    households.push({ name: householdName, importKey: (households.length + 1).toString() } as ImportHouseholdInterface);
-  }
-  person.householdKey = households[households.length - 1].importKey;
-}
+  tmpPeople.forEach((p) => {
+    if (p.birthDate !== undefined) p.birthDate = new Date(p.birthDate);
+  });
 
-const loadPeople = (data: any) => {
-  for (let i = 0; i < data.length; i++) {
-    if (data[i]["Last Name"] !== undefined) {
-      const p = {
-        importKey: data[i]["Breeze ID"],
-        id: data[i]["Breeze ID"],
-        name: { first: data[i]["First Name"], middle: data[i]["Middle Name"], last: data[i]["Last Name"], nick: data[i]["Nickname"], display: `${data[i]["First Name"]} ${data[i]["Last Name"]}` } as NameInterface,
-        contactInfo: { address1: data[i]["Street Address"], address2: "", city: data[i]["City"], state: data[i]["State"], zip: data[i]["Zip"], homePhone: data[i]["Home"], mobilePhone: data[i]["Mobile"], workPhone: data[i]["Work"], email: data[i]["Email"] } as ContactInfoInterface,
-        membershipStatus: data[i]["Status"],
-        gender: data[i]["Gender"],
-        birthDate: data[i]["Birthdate"],
-        maritalStatus: data[i]["Marital Status"],
-        anniversary: new Date(),
-        photoUpdated: new Date(),
-        householdId: data[i]["Family"],
-        householdRole: data[i]["Family Role"],
-        userId: data[i]["Breeze ID"]
-      } as ImportPersonInterface;
-
-      assignHousehold(households, p);
-      people.push(p);
+  await runImport("Households", async () => {
+    if(tmpHouseholds.length > 0) {
+      await ApiHelper.post("/households", tmpHouseholds, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpHouseholds[i].id = result[i].id;
+      });
     }
-  }
-  return people;
+  });
+
+  await runImport("People", async () => {
+    if(tmpPeople.length > 0) {
+      tmpPeople.forEach((p) => {
+        p.householdId = ImportHelper.getByImportKey(tmpHouseholds, p.householdKey).id;
+        p.householdRole = "Other";
+      });
+      await ApiHelper.post("/people", tmpPeople, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpPeople[i].id = result[i].id;
+      });
+    }
+  });
+
+  await runImport("Photos", async () => {
+    if(tmpPeople.length > 0) {
+      tmpPeople.forEach((p) => {
+        p.householdId = ImportHelper.getByImportKey(tmpHouseholds, p.householdKey).id;
+        p.householdRole = "Other";
+      });
+      await ApiHelper.post("/people", tmpPeople, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpPeople[i].id = result[i].id;
+      });
+      await runImport("Photos", async () => {});
+    }
+  });
+
+  return tmpPeople;
+}
+
+const exportGroups = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], tmpServiceTimes: ImportServiceTimeInterface[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  let tmpGroups: ImportGroupInterface[] = [...exportData.groups];
+  let tmpTimes: ImportGroupServiceTimeInterface[] = [...exportData.groupServiceTimes];
+  let tmpMembers: ImportGroupMemberInterface[] = [...exportData.groupMembers];
+
+  await runImport("Groups", async () => {
+    if(tmpGroups.length > 0) {
+      await ApiHelper.post("/groups", tmpGroups, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpGroups[i].id = result[i].id;
+      });
+    }
+  });
+
+  await runImport("Group Service Times", async () => {
+    if(tmpTimes.length > 0) {
+      tmpTimes.forEach((gst) => {
+        gst.groupId = ImportHelper.getByImportKey(tmpGroups, gst.groupKey).id
+        gst.serviceTimeId = ImportHelper.getByImportKey(tmpServiceTimes, gst.serviceTimeKey).id
+      });
+      await ApiHelper.post("/groupservicetimes", tmpTimes, "AttendanceApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpTimes[i].id = result[i].id;
+      });
+    }
+  });
+
+  await runImport("Group Members", async () => {
+    if(tmpMembers.length > 0) {
+      tmpMembers.forEach((gm) => {
+        gm.groupId = ImportHelper.getByImportKey(tmpGroups, gm.groupKey)?.id
+        gm.personId = ImportHelper.getByImportKey(tmpPeople, gm.personKey)?.id
+      });
+      await ApiHelper.post("/groupmembers", tmpMembers, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpMembers[i].id = result[i].id;
+      });
+    }
+  });
+
+  return tmpGroups;
+}
+
+const exportForms = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  let tmpForms: ImportFormsInterface[] = [...exportData.forms];
+  let tmpQuestions: ImportQuestionsInterface[] = [...exportData.questions];
+  let tmpFormSubmissions: ImportFormSubmissions[] = [...exportData.formSubmissions];
+  let tmpAnswers: ImportAnswerInterface[] = [...exportData.answers];
+
+  await runImport("Forms", async () => {
+    if(tmpForms.length > 0){
+      await ApiHelper.post("/forms", tmpForms, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) {
+          if (tmpForms[i]) {
+            tmpForms[i].id = result[i]?.id;
+          }
+        }
+      })
+    }
+  })
+
+  await runImport("Questions", async () => {
+    if(tmpQuestions.length > 0) {
+      tmpQuestions.forEach(q => {
+        q.formId = ImportHelper.getByImportKey(tmpForms, q.formKey).id;
+      })
+      // Update with formId qs
+      await ApiHelper.post("/questions", tmpQuestions, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpQuestions[i].id = result[i].id;
+      })
+    }
+  })
+
+  await runImport("Answers", async () => {
+    if(tmpFormSubmissions.length > 0){
+      tmpFormSubmissions.forEach(fs => {
+        let formId = ImportHelper.getByImportKey(tmpForms, fs.formKey).id;;
+        fs.formId = formId;
+        fs.contentId = ImportHelper.getByImportKey(tmpPeople, fs.personKey).id;
+
+        let questions: any[] = [];
+        let answers: any[] = [];
+        tmpQuestions.forEach(q => {
+          if (q.formId === formId) {
+            questions.push(q);
+
+            tmpAnswers.forEach(a => {
+              if (a.questionKey === q.questionKey) {
+                answers.push({questionId: q.id, value: a.value});
+              }
+            })
+
+          }
+        })
+        fs.questions = questions;
+        fs.answers = answers;
+      })
+
+    }
+  })
+  await runImport("Form Submissions", async () => {
+    if(tmpFormSubmissions.length > 0){
+      await ApiHelper.post("/formsubmissions", tmpFormSubmissions, "MembershipApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpFormSubmissions[i].id = result[i].id;
+      })
+    }
+  })
+}
+
+const exportDonations = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  let tmpFunds: ImportFundInterface[] = [...exportData.funds];
+  let tmpBatches: ImportDonationBatchInterface[] = [...exportData.batches];
+  let tmpDonations: ImportDonationInterface[] = [...exportData.donations];
+
+  await runImport("Funds", async () => {
+    await ApiHelper.post("/funds", tmpFunds, "GivingApi").then(result => {
+      for (let i = 0; i < result.length; i++) tmpFunds[i].id = result[i].id;
+    });;
+  });
+
+  await runImport("Donation Batches", async () => {
+    if(tmpBatches.length > 0){
+      await ApiHelper.post("/donationbatches", tmpBatches, "GivingApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpBatches[i].id = result[i].id;
+      });
+    }
+  });
+
+  await runImport("Donations", async () => {
+    if(tmpDonations.length > 0){
+      tmpDonations.forEach((d, i) => {
+        d.batchId = ImportHelper.getByImportKey(tmpBatches, d.batchKey).id;
+        d.personId = ImportHelper.getByImportKey(tmpPeople, d.personKey)?.id;
+      });
+
+      await ApiHelper.post("/donations", tmpDonations, "GivingApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpDonations[i].id = result[i].id;
+      });
+    }
+  });
+
+  await runImport("Donation Funds", async () => {
+    let tmpFundDonations: ImportFundDonationInterface[] = [...exportData.fundDonations];
+    if(tmpFundDonations.length > 0) {
+      tmpFundDonations.forEach((fd) => {
+        fd.donationId = ImportHelper.getByImportKey(tmpDonations, fd.donationKey).id;
+        fd.fundId = ImportHelper.getByImportKey(tmpFunds, fd.fundKey).id;
+      });
+      await ApiHelper.post("/funddonations", tmpFundDonations, "GivingApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpFundDonations[i].id = result[i].id;
+      });
+    }
+  });
+}
+
+const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], tmpGroups: ImportGroupInterface[], tmpServices: ImportServiceInterface[], tmpServiceTimes: ImportServiceTimeInterface[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  let tmpSessions: ImportSessionInterface[] = [...exportData.sessions];
+  let tmpVisits: ImportVisitInterface[] = [...exportData.visits];
+  await runImport("Attendance", async () => {
+    if(tmpSessions.length > 0) {
+      tmpSessions.forEach((s) => {
+        s.groupId = ImportHelper.getByImportKey(tmpGroups, s.groupKey).id;
+        s.serviceTimeId = ImportHelper.getByImportKey(tmpServiceTimes, s.serviceTimeKey).id;
+      });
+      await ApiHelper.post("/sessions", tmpSessions, "AttendanceApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpSessions[i].id = result[i].id;
+      });
+    }
+
+    if(tmpVisits.length > 0){
+      tmpVisits.forEach((v) => {
+        v.personId = ImportHelper.getByImportKey(tmpPeople, v.personKey).id;
+        try {
+          v.serviceId = ImportHelper.getByImportKey(tmpServices, v.serviceKey).id;
+        } catch {
+          v.groupId = ImportHelper.getByImportKey(tmpGroups, v.groupKey).id;
+        }
+      });
+      await ApiHelper.post("/visits", tmpVisits, "AttendanceApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpVisits[i].id = result[i].id;
+      });
+    }
+
+    let tmpVisitSessions: ImportVisitSessionInterface[] = [...exportData.visitSessions];
+    if(tmpVisitSessions.length > 0){
+      tmpVisitSessions.forEach((vs) => {
+        vs.visitId = ImportHelper.getByImportKey(tmpVisits, vs.visitKey).id;
+        vs.sessionId = ImportHelper.getByImportKey(tmpSessions, vs.sessionKey).id;
+      });
+      await ApiHelper.post("/visitsessions", tmpVisitSessions, "AttendanceApi").then(result => {
+        for (let i = 0; i < result.length; i++) tmpVisitSessions[i].id = result[i].id;
+      });
+    }
+  });
+}
+
+const getPhotos = (exportData: ImportDataInterface) => {
+  let result: Promise<any>[] = [];
+  let people = [...exportData.people]
+  people.forEach(async (p) => {
+    // TODO
+  })
+  Promise.all(result);
 }
 
 export default exportToChumsDb;
