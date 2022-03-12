@@ -201,7 +201,7 @@ const getDonations = async (importData : ImportDataInterface) => {
       method: donation.method,
       methodDetails: donation.methodDetails,
       amount: donation.amount,
-      fund: fund.name,
+      fund: fund ? fund.name : "",
       notes: donation.notes
     }
     data.push(row);
