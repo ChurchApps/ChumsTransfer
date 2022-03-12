@@ -108,7 +108,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
       for (let i = 0; i < props.importData.donations.length; i++) {
         let donation: ImportDonationInterface = props.importData.donations[i];
         let batch: ImportDonationBatchInterface = ImportHelper.getByImportKey(props.importData.batches, donation.batchKey);
-        let fund: ImportFundInterface = donation.fund ? ImportHelper.getByImportKey(props.importData.funds, donation.fund.id) : null;
+        let fund: ImportFundInterface = ImportHelper.getByImportKey(props.importData.funds, donation.fundKey);
         let person: ImportPersonInterface = ImportHelper.getByImportKey(props.importData.people, donation.personId);
         let personName = (person === null) ? "" : person.name.first + " " + person.name.last;
         rows.push(<tr key={Math.random()}><td>{DateHelper.prettyDate(new Date(donation.donationDate))}</td><td>{batch.name}</td><td>{personName}</td><td>{fund?.name}</td><td>{CurrencyHelper.formatCurrency(donation.amount)}</td></tr>);

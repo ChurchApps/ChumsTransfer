@@ -138,6 +138,7 @@ const getDonations = async () => {
     if(person) d.person = person;
     let fd = fundDonations.find(fd => fd.donationId === d.id)
     if(fd) d.fund = funds.find(f => f.id === fd.fundId)
+    d.fundKey = d.fund?.id;
   });
   funds.forEach((f) => {
     f.importKey = f.id

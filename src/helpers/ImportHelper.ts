@@ -17,7 +17,7 @@ export interface ImportVisitSessionInterface extends VisitSessionInterface { vis
 
 export interface ImportDonationBatchInterface extends DonationBatchInterface { importKey: string }
 export interface ImportFundInterface extends FundInterface { importKey: string }
-export interface ImportDonationInterface extends DonationInterface { importKey: string, batchKey: string, personKey: string }
+export interface ImportDonationInterface extends DonationInterface { importKey: string, batchKey: string, personKey: string, fundKey: string }
 export interface ImportFundDonationInterface extends FundDonationInterface { fundKey: string, donationKey: string }
 
 export interface ImportFormsInterface extends FormInterface { importKey: string }
@@ -70,8 +70,7 @@ export class ImportHelper {
   static getOrCreateFund(funds: ImportFundInterface[], name: string) {
     let result = ArrayHelper.getOne(funds, "name", name);
     if (result === null) {
-      let id = (funds.length + 1).toString();
-      result = { importKey: id, id: id, name: name } as ImportFundInterface;
+      result = { importKey: (funds.length + 1).toString(), name: name } as ImportFundInterface;
       funds.push(result);
     }
     return result;
@@ -140,7 +139,6 @@ export class ImportHelper {
       result.trackAttendance = (data.trackAttendance === "TRUE");
       result.parentPickup = (data.parentPickup === "TRUE");
       if (result.importKey === "" || result.importKey === undefined || result.importKey === null) result.importKey = (groups.length + 1).toString();
-      result.id = data.importKey;
       groups.push(result);
     }
     return result;

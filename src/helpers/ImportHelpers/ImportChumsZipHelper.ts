@@ -97,7 +97,7 @@ const loadDonations = (data: any) => {
     let d = data[i];
     let batch = ImportHelper.getOrCreateBatch(batches, d.batch, new Date(d.date));
     let fund = ImportHelper.getOrCreateFund(funds, d.fund);
-    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d.personKey, personId: d.personKey, donationDate: new Date(d.date), amount: Number.parseFloat(d.amount), method: d.method, methodDetails: d.methodDetails, notes: d.notes, fund: fund } as ImportDonationInterface;
+    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d.personKey, personId: d.personKey, donationDate: new Date(d.date), amount: Number.parseFloat(d.amount), method: d.method, methodDetails: d.methodDetails, notes: d.notes, fund: fund, fundKey: fund.importKey } as ImportDonationInterface;
     let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.amount) } as ImportFundDonationInterface;
     let donationPerson = people.find(p => p.importKey === donation.personKey);
     if(donationPerson) donation.person = donationPerson;
