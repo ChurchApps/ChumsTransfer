@@ -5,6 +5,7 @@ import {
   , ImportGroupServiceTimeInterface
   , ImportDonationBatchInterface
   , ImportDataInterface
+  , ImportHouseholdInterface
 } from "../ImportHelper";
 
 const generateBreezeZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
@@ -70,10 +71,12 @@ const generateBreezeZip = async (importData: ImportDataInterface, updateProgress
 
 const getPeople = async (importData : ImportDataInterface) => {
   const { people } = importData;
+  let tmpHouseholds: ImportHouseholdInterface[] = [...importData.households];
   let data: any[] = [];
   people.forEach((p) => {
+    let household = tmpHouseholds.find(h => p.householdKey === h.importKey)
     let row = {
-      "Breeze ID": p.id,
+      "Breeze ID": p.importKey,
       "First Name": p.name.first,
       "Last Name": p.name.last,
       "Middle Name": p.name.middle,
@@ -85,7 +88,7 @@ const getPeople = async (importData : ImportDataInterface) => {
       Birthdate: p.birthDate,
       "Birthdate Month/Day": new Date(p.birthDate).getMonth() + "/" + new Date(p.birthDate).getDay(),
       Age: PersonHelper.calculateAge(p.birthDate),
-      Family: p.name.last,
+      Family: household.name ?? p.name.last,
       "Family Role": p.householdRole,
       School: p.school,
       "Graduation Year": p.graduationDate,

@@ -7,6 +7,7 @@ import {
   , ImportVisitInterface, ImportSessionInterface
   , ImportDonationBatchInterface, ImportFundInterface
   , ImportDataInterface
+  , ImportHouseholdInterface
 } from "../ImportHelper";
 import Papa from "papaparse";
 
@@ -80,11 +81,13 @@ const getCampusServiceTimes = async (importData : ImportDataInterface) => {
 
 const getPeople = async (importData : ImportDataInterface) => {
   const { people } = importData;
+  let tmpHouseholds: ImportHouseholdInterface[] = [...importData.households];
   let data: any[] = [];
   people.forEach((p) => {
+    let household = tmpHouseholds.find(h => p.householdKey === h.importKey)
     let row = {
-      importKey: p.id,
-      household: p.name.last,
+      importKey: p.importKey,
+      household: household.name ?? p.name.last,
       lastName: p.name.last, firstName: p.name.first, middleName: p.name.middle, nickName: p.name.nick,
       birthDate: p.birthDate, gender: p.gender, maritalStatus: p.maritalStatus, membershipStatus: p.membershipStatus,
       homePhone: p.contactInfo.homePhone, mobilePhone: p.contactInfo.mobilePhone, workPhone: p.contactInfo.workPhone, email: p.contactInfo.email,

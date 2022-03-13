@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Container, Dropdown, DropdownButton } from "react-bootstrap";
+import { Container, Dropdown, DropdownButton, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { Loading } from "./appBase/components/Loading"
 import { Footer, Header, DisplayBox } from "./components"
@@ -12,6 +12,7 @@ import readPlanningCenterZip from "./helpers/ImportHelpers/ImportPlanningCenterZ
 import generateBreezeZip from "./helpers/ExportHelpers/ExportBreezeZipHelper"
 import generateChumsZip from "./helpers/ExportHelpers/ExportChumsZipHelper"
 import exportToChumsDb from "./helpers/ExportHelpers/ExportChumsDbHelper"
+import generatePlanningCenterZip from "./helpers/ExportHelpers/ExportPlanningCenterZipHelper"
 
 import { ImportDataInterface } from "./helpers/ImportHelper";
 
@@ -107,6 +108,7 @@ export const Home = () => {
         break;
       }
       case DataSourceType.PLANNING_CENTER_ZIP: {
+        generatePlanningCenterZip(importData, setProgress)
         break;
       }
       default: {
@@ -188,7 +190,10 @@ export const Home = () => {
           <ImportPreview triggerRender={1} importData={importData} />
         )}
         {isLoadingSourceData && dataImportSource === DataSourceType.CHUMS_DB && (
-          <Loading />
+          <>
+            <Spinner animation="border" size="sm" />
+            <Loading />
+          </>
         )}
         <hr />
         <Link to={"/settings/import"}>Temp Link to Old Import</Link><br />
