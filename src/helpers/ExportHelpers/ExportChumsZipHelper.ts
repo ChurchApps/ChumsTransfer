@@ -198,7 +198,7 @@ const getDonations = async (importData : ImportDataInterface) => {
     let fund: ImportFundInterface = ImportHelper.getById(funds, donation.fund?.id);
     let batch: ImportDonationBatchInterface = ImportHelper.getById(batches, donation.batchId);
     let row = {
-      batch: batch.id,
+      batch: batch ? batch.id : "",
       date: donation.donationDate,
       personKey: donation.person?.id,
       method: donation.method,

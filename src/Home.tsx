@@ -1,7 +1,9 @@
 import React, { useState, useRef } from "react";
-import { Container, Dropdown, DropdownButton, Spinner } from "react-bootstrap";
+import { Container, Dropdown, DropdownButton, Row, Col } from "react-bootstrap";
+import "react-activity/dist/Dots.css"
+import "react-activity/dist/Windmill.css"
+import { Dots, Windmill } from "react-activity";
 import { Link } from "react-router-dom";
-import { Loading } from "./appBase/components/Loading"
 import { Footer, Header, DisplayBox } from "./components"
 import { DataSourceType } from "./types/index"
 import { ImportPreview } from "./settings/components/ImportPreview";
@@ -51,7 +53,17 @@ export const Home = () => {
     }
   };
   const getProgress = (name: string) => {
+
     if (status[name] === undefined) return (<li className="pending" key={name}>{name}</li>);
+
+    if (status[name] === "error") return (<li className="error" key={name}>{name}</li>);
+
+    if (status[name] === "running") return (
+      <li key={name}>
+        <Windmill className="inline-child" color="#727981" size={14} speed={1} animating={true} style={{marginRight:10}} />
+        <span className="inline-child">{name}</span>
+      </li>
+    );
     else return (<li className={status[name]} key={name}>{name}</li>);
   }
   const setProgress = (name: string, status: string) => {
@@ -139,7 +151,6 @@ export const Home = () => {
       <Container>
         <h1>Import/Export Tool</h1>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis semper et magna in imperdiet. Pellentesque nec fermentum neque, sed accumsan ex. Suspendisse eu turpis vel mi bibendum dictum quis non nibh. Aliquam venenatis urna ac purus mattis aliquam. Nulla facilisi. In placerat ex congue, eleifend dolor sit amet, molestie magna. Aliquam imperdiet lacinia arcu eget accumsan. Nunc pulvinar facilisis porttitor. Quisque commodo nisl quam, nec posuere elit bibendum nec. Nam lacinia, odio et elementum tempor, purus dolor eleifend dui, in imperdiet ligula metus eget dui.</p>
-
         <p>Sed semper dolor nulla, at pretium est placerat sed. Quisque tempor, odio quis iaculis bibendum, sapien tortor blandit est, quis vulputate leo tortor id dolor. Quisque sed ornare nunc, eu congue neque. Integer bibendum porttitor purus, sed cursus purus tincidunt vitae. Morbi ipsum urna, molestie id posuere in, luctus sit amet quam. Mauris pellentesque dolor a purus mollis iaculis a eget enim. Etiam et venenatis nibh, ac aliquam urna. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque tristique accumsan iaculis. Donec ut dolor augue. Proin sed felis elementum diam eleifend maximus. Morbi dictum et tortor eu condimentum.</p>
         <hr />
         {importData == null && (
@@ -190,10 +201,9 @@ export const Home = () => {
           <ImportPreview triggerRender={1} importData={importData} />
         )}
         {isLoadingSourceData && dataImportSource === DataSourceType.CHUMS_DB && (
-          <>
-            <Spinner animation="border" size="sm" />
-            <Loading />
-          </>
+          <div style={{justifyContent: "center", display: "flex"}}>
+            <Dots color="#727981" size={34} speed={1} animating={true} />
+          </div>
         )}
         <hr />
         <Link to={"/settings/import"}>Temp Link to Old Import</Link><br />

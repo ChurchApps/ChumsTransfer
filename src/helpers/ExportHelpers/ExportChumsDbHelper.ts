@@ -13,8 +13,13 @@ const exportToChumsDb = async (exportData: ImportDataInterface, updateProgress: 
 
   const runImport = async (keyName: string, code: () => void) => {
     updateProgress(keyName, "running");
-    await code();
-    updateProgress(keyName, "complete");
+    try{
+      await code();
+      updateProgress(keyName, "complete");
+    }catch(e){
+      updateProgress(keyName, "error");
+      throw(e)
+    }
   }
 
   let campusResult = await exportCampuses(exportData, runImport);

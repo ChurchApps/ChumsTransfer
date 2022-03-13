@@ -1,7 +1,6 @@
 import React from "react"
 import { Row, Col, Container } from "react-bootstrap";
 import { UserHelper } from "../appBase/helpers";
-import { EnvironmentHelper } from "../helpers";
 
 export const Header: React.FC = () => {
 
