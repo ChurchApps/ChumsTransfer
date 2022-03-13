@@ -2,10 +2,8 @@ import { UploadHelper, PersonHelper, PersonInterface, DownloadHelper } from ".."
 import { ArrayHelper } from "../../appBase/helpers/ArrayHelper";
 import {
   ImportHelper
-  , ImportCampusInterface, ImportServiceInterface
   , ImportGroupServiceTimeInterface
-  , ImportVisitInterface, ImportSessionInterface
-  , ImportDonationBatchInterface, ImportFundInterface, ImportDonationInterface
+  , ImportDonationBatchInterface
   , ImportDataInterface
 } from "../ImportHelper";
 
@@ -69,22 +67,6 @@ const generateBreezeZip = async (importData: ImportDataInterface, updateProgress
   UploadHelper.zipFiles(files, "BreezeExport.zip");
   updateProgress("Compressing", "complete");
 }
-const getCampusServiceTimes = async (importData : ImportDataInterface) => {
-  const {campuses, services, serviceTimes} = importData;
-  let data: any[] = [];
-  serviceTimes.forEach((st) => {
-    let service: ImportServiceInterface = ImportHelper.getById(services, st.serviceId);
-    let campus: ImportCampusInterface = ImportHelper.getById(campuses, service.campusId);
-    let row = {
-      importKey: st.id,
-      campus: campus.name,
-      service: service.name,
-      time: st.name
-    }
-    data.push(row);
-  });
-  return data;
-}
 
 const getPeople = async (importData : ImportDataInterface) => {
   const { people } = importData;
@@ -147,62 +129,6 @@ const getGroups = async (importData : ImportDataInterface) => {
   return data;
 }
 
-const getQuestions = async (importData : ImportDataInterface) => {
-  const {questions} = importData;
-  let data: any[] = [];
-  questions.forEach(q => {
-    let row = {
-      questionKey: q.id,
-      formKey: q.formId,
-      fieldType: q.fieldType,
-      title: q.title
-    }
-    data.push(row);
-  })
-
-  return data;
-}
-
-const getFormSubmissions = async (importData : ImportDataInterface) => {
-  const {formSubmissions} = importData;
-  let data: any[] = [];
-  formSubmissions.forEach(fs => {
-    let row = {
-      formKey: fs.formId,
-      personKey: fs.contentId,
-      contentType: fs.contentType
-    }
-    data.push(row);
-  })
-
-  return data;
-}
-
-const getAnswers = async (importData : ImportDataInterface) => {
-  const { answers } = importData;
-  let data: any[] = [];
-  answers.forEach(a => {
-    let row = {
-      questionKey: a.questionId,
-      formSubmissionKey: a.formSubmissionId,
-      value: a.value
-    }
-    data.push(row);
-  })
-
-  return data;
-}
-
-const getGroupMembers = async (importData : ImportDataInterface) => {
-  const {groupMembers} = importData;
-  let data: any[] = [];
-  groupMembers.forEach((gm) => {
-    let row = { groupKey: gm.groupId, personKey: gm.personId }
-    data.push(row);
-  });
-  return data;
-}
-
 const getDonations = async (importData : ImportDataInterface) => {
   const {batches, donations} = importData;
   let data: any[] = [];
@@ -224,25 +150,6 @@ const getDonations = async (importData : ImportDataInterface) => {
       Note: donation.notes
     }
     data.push(row);
-  });
-  return data;
-}
-
-const getAttendance = async (importData : ImportDataInterface) => {
-  const {sessions, visits, visitSessions} = importData;
-  let data: any[] = [];
-  visitSessions.forEach((vs) => {
-    let visit: ImportVisitInterface = ImportHelper.getById(visits, vs.visitId);
-    let session: ImportSessionInterface = ImportHelper.getById(sessions, vs.sessionId);
-    if (visit && session) {
-      let row = {
-        date: visit.visitDate,
-        serviceTimeKey: session.serviceTimeId,
-        groupKey: session.groupId,
-        personKey: visit.personId
-      }
-      data.push(row);
-    }
   });
   return data;
 }

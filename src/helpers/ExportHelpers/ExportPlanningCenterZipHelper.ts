@@ -5,7 +5,7 @@ import {
   , ImportCampusInterface, ImportServiceInterface
   , ImportGroupServiceTimeInterface
   , ImportVisitInterface, ImportSessionInterface
-  , ImportDonationBatchInterface, ImportFundInterface, ImportDonationInterface
+  , ImportDonationBatchInterface, ImportFundInterface
   , ImportDataInterface
 } from "../ImportHelper";
 import Papa from "papaparse";

@@ -1,6 +1,7 @@
 import { UploadHelper } from "../UploadHelper";
+import Papa from "papaparse";
 import {
-  ImportHelper, ImportPersonInterface, ImportHouseholdInterface
+  ImportPersonInterface, ImportHouseholdInterface
   , ImportCampusInterface, ImportServiceInterface, ImportServiceTimeInterface
   , ImportGroupInterface, ImportGroupMemberInterface, ImportGroupServiceTimeInterface
   , ImportVisitInterface, ImportSessionInterface, ImportVisitSessionInterface
@@ -10,7 +11,6 @@ import {
 } from "../ImportHelper";
 import JSZip from "jszip";
 import { ContactInfoInterface, NameInterface } from "..";
-import { object } from "yup";
 
 let people: ImportPersonInterface[] = [];
 let households: ImportHouseholdInterface[] = [];
@@ -38,7 +38,7 @@ const readPlanningCenterZip = async (file: File): Promise<ImportDataInterface> =
   const zip = isZip ? await JSZip.loadAsync(file) : null;
   const fileNames = isZip ? Object.keys(zip.files) : [];
   const peopleFile = isZip ? fileNames.find(name => name.match("export")) : file.name;
-  let csvString = isZip ? await zip.file(peopleFile).async("string") : UploadHelper.convertObjectArrToCSVString(await UploadHelper.readCsv(file) as Object[])
+  let csvString = isZip ? await zip.file(peopleFile).async("string") : Papa.unparse(await UploadHelper.readCsv(file) as Object[])
   loadPeople(UploadHelper.readCsvString(csvString));
   return {
     people: people,

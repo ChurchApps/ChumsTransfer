@@ -291,13 +291,4 @@ const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: Impo
   });
 }
 
-const getPhotos = (exportData: ImportDataInterface) => {
-  let result: Promise<any>[] = [];
-  let people = [...exportData.people]
-  people.forEach(async (p) => {
-    // TODO
-  })
-  Promise.all(result);
-}
-
 export default exportToChumsDb;

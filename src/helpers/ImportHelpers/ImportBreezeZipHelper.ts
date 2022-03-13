@@ -70,18 +70,6 @@ const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
 
 }
 
-const loadTags = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].value !== undefined) {
-    answers.push(data[i]);
-  }
-}
-
-const loadNotes = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined) {
-    formSubmissions.push(data[i]);
-  }
-}
-
 const loadEvents = (data: any) => {
   for (let i = 0; i < data.length; i++) if (data[i].Name !== undefined) {
     let group = getOrCreateGroup(groups, data[i]);
@@ -118,45 +106,6 @@ const loadDonations = (data: any) => {
     donations.push(donation);
     fundDonations.push(fundDonation);
   }
-}
-
-const loadAttendance = (data: any, tmpServiceTimes: ImportServiceTimeInterface[]) => {
-  for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined && data[i].groupKey !== undefined) {
-    let session = ImportHelper.getOrCreateSession(sessions, new Date(data[i].date), data[i].groupKey, data[i].serviceTimeKey);
-    let visit = ImportHelper.getOrCreateVisit(visits, data[i], tmpServiceTimes);
-    let visitSession = { visitKey: visit.importKey, sessionKey: session.importKey } as ImportVisitSessionInterface;
-    visitSessions.push(visitSession);
-
-    let group = groups.find(group => group.importKey === data[i].groupKey);
-    if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-      if(groupServiceTimes.find(gst => gst.groupKey === group.importKey && gst.serviceTimeKey === group.serviceTimeKey) === undefined) groupServiceTimes.push(gst);
-    }
-  }
-}
-
-const loadServiceTimes = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].time !== undefined) {
-    let campus = ImportHelper.getOrCreateCampus(campuses, data[i].campus);
-    let service = ImportHelper.getOrCreateService(services, data[i].service, campus);
-    ImportHelper.getOrCreateServiceTime(serviceTimes, data[i], service);
-  }
-  return serviceTimes;
-}
-
-const loadGroups = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].name !== undefined) {
-    let group = ImportHelper.getOrCreateGroup(groups, data[i]);
-    if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
-      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-      groupServiceTimes.push(gst);
-    }
-  }
-  return groups;
-}
-
-const loadGroupMembers = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].groupKey !== undefined) groupMembers.push(data[i] as ImportGroupMemberInterface);
 }
 
 const assignHousehold = (households: ImportHouseholdInterface[], person: ImportPersonInterface) => {

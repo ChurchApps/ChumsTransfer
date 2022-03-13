@@ -2,7 +2,6 @@ import { UploadHelper } from "../UploadHelper";
 import { ApiHelper } from "../../appBase/helpers/ApiHelper";
 import { ArrayHelper } from "../../appBase/helpers/ArrayHelper";
 import { PersonHelper } from "../PersonHelper";
-import { EnvironmentHelper } from "../EnvironmentHelper";
 
 import Papa from "papaparse";
 import {
@@ -179,14 +178,6 @@ const getAttendance = async () => {
     }
   });
   return Papa.unparse(data);
-}
-
-const getPhotos = (files: { name: string, contents: string | Buffer }[]) => {
-  let result: Promise<any>[] = [];
-  people.forEach(async (p) => {
-    if (p.photoUpdated !== undefined) result.push(UploadHelper.downloadImageBytes(files, p.id.toString() + ".png", PersonHelper.getPhotoUrl(p)));
-  })
-  Promise.all(result);
 }
 
 export default getChumsData;

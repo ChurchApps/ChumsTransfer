@@ -62,20 +62,6 @@ export class UploadHelper {
     return result;
   }
 
-  static convertObjectArrToCSVString(obArray: Object[]): string {
-    let csvText = ""
-    let csvHeaders = ""
-    obArray.forEach(ob => {
-      if(typeof ob === "object"){
-        if(csvHeaders === "")csvHeaders = Object.keys(ob).join() + "\r\n";
-        let vals = Object.values(ob).join()
-        csvText += vals + "\r\n";
-      }
-    })
-
-    return csvHeaders.concat(csvText);
-  }
-
   static readCsv(file: File): Promise<unknown> {
     const reader = new FileReader();
     return new Promise((resolve, reject) => {
