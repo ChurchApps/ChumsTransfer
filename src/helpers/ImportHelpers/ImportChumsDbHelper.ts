@@ -103,19 +103,29 @@ const getGroups = async () => {
     let gst: ImportGroupServiceTimeInterface[] = ArrayHelper.getAll(groupServiceTimes, "groupId", g.id);
     if (gst.length === 0) serviceTimeIds = [""];
     else gst.forEach((time) => { serviceTimeIds.push(time.serviceTimeId.toString()) });
+    g.importKey = g.id;
   });
 }
 
 const getForms = async () => {
   forms = await ApiHelper.get("/forms", "MembershipApi");
+  forms.forEach((f) => {
+    f.importKey = f.id;
+  });
 }
 
 const getQuestions = async () => {
   questions = await ApiHelper.get("/questions", "MembershipApi");
+  questions.forEach((q) => {
+    q.questionKey = q.id;
+  });
 }
 
 const getFormSubmissions = async () => {
   formSubmissions = await ApiHelper.get("/formsubmissions", "MembershipApi");
+  formSubmissions.forEach((fs) => {
+    fs.formKey = fs.id;
+  });
 }
 
 const getAnswers = async () => {
@@ -139,6 +149,7 @@ const getDonations = async () => {
     let fd = fundDonations.find(fd => fd.donationId === d.id)
     if(fd) d.fund = funds.find(f => f.id === fd.fundId)
     d.fundKey = d.fund?.id;
+    d.importKey = d.id;
   });
   funds.forEach((f) => {
     f.importKey = f.id
@@ -154,7 +165,9 @@ const getAttendance = async () => {
   let data: any[] = [];
   visitSessions.forEach((vs) => {
     let visit: ImportVisitInterface = ImportHelper.getById(visits, vs.visitId);
+    visit.importKey = visit.id;
     let session: ImportSessionInterface = ImportHelper.getById(sessions, vs.sessionId);
+    session.importKey = session.id;
     if (visit && session) {
       let row = {
         date: visit.visitDate,

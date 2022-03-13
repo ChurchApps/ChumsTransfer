@@ -1,12 +1,14 @@
 import React, { useState, useRef } from "react";
 import { Button, Container, Dropdown, DropdownButton } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { Loading } from "./appBase/components/Loading"
 import { Footer, Header, DisplayBox } from "./components"
 import { DataSourceType } from "./types/index"
 import { ImportPreview } from "./settings/components/ImportPreview";
 import readChumsZip from "./helpers/ImportHelpers/ImportChumsZipHelper"
 import getChumsData from "./helpers/ImportHelpers/ImportChumsDbHelper"
 import readBreezeZip from "./helpers/ImportHelpers/ImportBreezeZipHelper"
+import readPlanningCenterZip from "./helpers/ImportHelpers/ImportPlanningCenterZipHelper"
 import generateBreezeZip from "./helpers/ExportHelpers/ExportBreezeZipHelper"
 import generateChumsZip from "./helpers/ExportHelpers/ExportChumsZipHelper"
 import exportToChumsDb from "./helpers/ExportHelpers/ExportChumsDbHelper"
@@ -28,6 +30,7 @@ export const Home = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<any>({});
   const inputIsFile = dataImportSource !== DataSourceType.CHUMS_DB;
+  const isLoadingSourceData = dataImportSource && !importData;
   let progress: any = {};
 
   const handleSelectFile = () => {
@@ -78,7 +81,7 @@ export const Home = () => {
         break;
       }
       case DataSourceType.PLANNING_CENTER_ZIP: {
-        importData = await readChumsZip(inputRef.current?.files[0])
+        importData = await readPlanningCenterZip(inputRef.current?.files[0])
         break;
       }
       default: {
@@ -177,12 +180,15 @@ export const Home = () => {
         {importData && (
           <button onClick={handleStartOver} className="btn btn-outline-danger">Start Over</button>
         )}
-        {isExporting && (
+        {dataExportSource && (
           <div>{getExportSteps()}</div>
         )}
 
         {importData && (
           <ImportPreview triggerRender={1} importData={importData} />
+        )}
+        {isLoadingSourceData && dataImportSource === DataSourceType.CHUMS_DB && (
+          <Loading />
         )}
         <hr />
         <Link to={"/settings/import"}>Temp Link to Old Import</Link><br />
