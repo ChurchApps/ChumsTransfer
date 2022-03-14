@@ -237,7 +237,7 @@ const exportAnswers = async (importData : ImportDataInterface, runImport: (keyNa
 const exportFormSubmissions = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
   const {formSubmissions} = importData;
   let data: any[] = [];
-  await runImport("formSubmissions", async () => {
+  await runImport("Form Submissions", async () => {
     formSubmissions.forEach(fs => {
       let row = {
         formKey: fs.formId,
