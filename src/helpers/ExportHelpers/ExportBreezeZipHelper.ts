@@ -9,160 +9,192 @@ import {
 } from "../ImportHelper";
 
 const generateBreezeZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
+
+  const runImport = async (keyName: string, code: () => void) => {
+    updateProgress(keyName, "running");
+    try{
+      await code();
+      updateProgress(keyName, "complete");
+    }catch(e){
+      updateProgress(keyName, "error");
+    }
+  }
+
   let files = [];
 
-  updateProgress("Campuses/Services/Times", "running");
-  //files.push({ name: "services.csv", contents: await getCampusServiceTimes(importData) });
-  updateProgress("Campuses/Services/Times", "complete");
+  exportCampuses(importData, runImport)
 
-  updateProgress("People", "running");
   let peopleFileName = `people-${new Date().toISOString().split("T")[0]}.xlsx`;
-  let peopleData = await getPeople(importData);
+  let peopleData = await exportPeople(importData, runImport);
   let peopleXlxsBuffer = DownloadHelper.createXlxs(peopleData)
   files.push({ name: peopleFileName, contents: peopleXlxsBuffer });
-  updateProgress("People", "complete");
 
-  updateProgress("Photos", "running");
-  getPhotos(importData.people, files);
-  updateProgress("Photos", "complete");
+  exportPhotos(importData.people, files, runImport);
 
-  updateProgress("Groups", "running");
   let groupsFileName = `events-${new Date().toISOString().split("T")[0]}.xlsx`;
-  let eventData = await getGroups(importData);
+  let eventData = await exportGroups(importData, runImport);
   let eventXlxsBuffer = DownloadHelper.createXlxs(eventData)
   files.push({ name: groupsFileName, contents: eventXlxsBuffer });
-  updateProgress("Groups", "complete");
 
-  updateProgress("Group Members", "running");
-  //files.push({ name: "groupmembers.csv", contents: await getGroupMembers(importData) });
-  updateProgress("Group Members", "complete");
-
-  updateProgress("Donations", "running");
   let donationsFileName = `giving-${new Date().toISOString().split("T")[0]}.xlsx`;
-  let dontationData = await getDonations(importData);
+  let dontationData = await exportDonations(importData, runImport);
   let donationXlxsBuffer = DownloadHelper.createXlxs(dontationData)
   files.push({ name: donationsFileName, contents: donationXlxsBuffer });
-  updateProgress("Donations", "complete");
 
-  updateProgress("Attendance", "running");
-  //files.push({ name: "attendance.csv", contents: await getAttendance(importData) });
-  updateProgress("Attendance", "complete");
+  exportAttendance(importData, runImport)
 
-  updateProgress("Forms", "running");
-  //files.push({ name: "forms.csv", contents: await getForms(importData) });
-  updateProgress("Forms", "complete");
+  exportForms(importData, runImport)
 
-  updateProgress("Questions", "running");
-  //files.push({ name: "questions.csv", contents: await getQuestions(importData) });
-  updateProgress("Questions", "complete");
+  compressZip(files, runImport);
 
-  updateProgress("Form Submissions", "running");
-  //files.push({ name: "formSubmissions.csv", contents: await getFormSubmissions(importData) });
-  updateProgress("Form Submissions", "complete");
-
-  updateProgress("Answers", "running");
-  //files.push({ name: "answers.csv", contents: await getAnswers(importData) });
-  updateProgress("Answers", "complete");
-
-  updateProgress("Compressing", "running");
-  UploadHelper.zipFiles(files, "BreezeExport.zip");
-  updateProgress("Compressing", "complete");
 }
-
-const getPeople = async (importData : ImportDataInterface) => {
-  const { people } = importData;
-  let tmpHouseholds: ImportHouseholdInterface[] = [...importData.households];
+const compressZip = async (files: {name: string, contents: any}[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  await runImport("Compressing", async () => {
+    UploadHelper.zipFiles(files, "BreezeExport.zip");
+  });
+}
+const exportCampuses = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
   let data: any[] = [];
-  people.forEach((p) => {
-    let household = tmpHouseholds.find(h => p.householdKey === h.importKey)
-    let row = {
-      "Breeze ID": p.importKey,
-      "First Name": p.name.first,
-      "Last Name": p.name.last,
-      "Middle Name": p.name.middle,
-      Nickname: p.name.nick,
-      "Maiden Name": "",
-      Gender: p.gender,
-      Status: p.membershipStatus,
-      "Marital Status": p.maritalStatus,
-      Birthdate: p.birthDate,
-      "Birthdate Month/Day": new Date(p.birthDate).getMonth() + "/" + new Date(p.birthDate).getDay(),
-      Age: PersonHelper.calculateAge(p.birthDate),
-      Family: household.name ?? p.name.last,
-      "Family Role": p.householdRole,
-      School: p.school,
-      "Graduation Year": p.graduationDate,
-      Grade: p.grade,
-      Employer: p.employer,
-      Mobile: p.contactInfo.mobilePhone,
-      Home: p.contactInfo.homePhone,
-      Work: p.contactInfo.workPhone,
-      Campus: "",
-      Email: p.contactInfo.email,
-      "Street Address": p.contactInfo.address1,
-      City: p.contactInfo.city,
-      State: p.contactInfo.state,
-      Zip: p.contactInfo.zip,
-      "Added Date": ""
-    }
-    data.push(row);
+  await runImport("Campuses/Services/Times", async () => {
   });
   return data;
 }
 
-const getGroups = async (importData : ImportDataInterface) => {
-  const {groups, groupServiceTimes} = importData;
+const exportPeople = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  const { people } = importData;
+  let tmpHouseholds: ImportHouseholdInterface[] = [...importData.households];
   let data: any[] = [];
-  groups.forEach((g) => {
-    let serviceTimeIds: string[] = [];
-    let gst: ImportGroupServiceTimeInterface[] = ArrayHelper.getAll(groupServiceTimes, "groupId", g.id);
-    if (gst.length === 0) serviceTimeIds = [""];
-    else gst.forEach((time) => time?.serviceTimeId ? serviceTimeIds.push(time?.serviceTimeId?.toString()) : null );
-    serviceTimeIds.forEach((serviceTimeId) => {
+  await runImport("People", async () => {
+    people.forEach((p) => {
+      let household = tmpHouseholds.find(h => p.householdKey === h.importKey)
       let row = {
-        "Event ID": g.importKey,
-        "Instance ID": g.id,
-        Name: g.name,
-        "Start Date": g.startDate,
-        "End Date": g.endDate
+        "Breeze ID": p.importKey,
+        "First Name": p.name.first,
+        "Last Name": p.name.last,
+        "Middle Name": p.name.middle,
+        Nickname: p.name.nick,
+        "Maiden Name": "",
+        Gender: p.gender,
+        Status: p.membershipStatus,
+        "Marital Status": p.maritalStatus,
+        Birthdate: p.birthDate,
+        "Birthdate Month/Day": new Date(p.birthDate).getMonth() + "/" + new Date(p.birthDate).getDay(),
+        Age: PersonHelper.calculateAge(p.birthDate),
+        Family: household.name ?? p.name.last,
+        "Family Role": p.householdRole,
+        School: p.school,
+        "Graduation Year": p.graduationDate,
+        Grade: p.grade,
+        Employer: p.employer,
+        Mobile: p.contactInfo.mobilePhone,
+        Home: p.contactInfo.homePhone,
+        Work: p.contactInfo.workPhone,
+        Campus: "",
+        Email: p.contactInfo.email,
+        "Street Address": p.contactInfo.address1,
+        City: p.contactInfo.city,
+        State: p.contactInfo.state,
+        Zip: p.contactInfo.zip,
+        "Added Date": ""
       }
       data.push(row);
     });
   });
   return data;
+
 }
 
-const getDonations = async (importData : ImportDataInterface) => {
+const exportGroups = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  const {groups, groupServiceTimes} = importData;
+  let data: any[] = [];
+  await runImport("Groups", async () => {
+    groups.forEach((g) => {
+      let serviceTimeIds: string[] = [];
+      let gst: ImportGroupServiceTimeInterface[] = ArrayHelper.getAll(groupServiceTimes, "groupId", g.id);
+      if (gst.length === 0) serviceTimeIds = [""];
+      else gst.forEach((time) => time?.serviceTimeId ? serviceTimeIds.push(time?.serviceTimeId?.toString()) : null );
+      serviceTimeIds.forEach((serviceTimeId) => {
+        let row = {
+          "Event ID": g.importKey,
+          "Instance ID": g.id,
+          Name: g.name,
+          "Start Date": g.startDate,
+          "End Date": g.endDate
+        }
+        data.push(row);
+      });
+    });
+  });
+  await runImport("Group Service Times", async () => {
+  });
+
+  await runImport("Group Members", async () => {
+  });
+
+  return data;
+}
+
+const exportDonations = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
   const {batches, donations} = importData;
   let data: any[] = [];
-  donations.forEach((donation) => {
-    let batch: ImportDonationBatchInterface = ImportHelper.getByImportKey(batches, donation.batchKey);
-    let row = {
-      Date: batch.batchDate,
-      Batch: donation.batchKey,
-      "Payment ID": "",
-      "Person ID": donation.person?.id,
-      "First Name": donation.person?.name.first,
-      "Last Name": donation.person?.name.last,
-      Amount: donation.amount,
-      "Fund(s)": donation.fund?.name,
-      "Method ID": donation.method,
-      "Account Number": "",
-      "Check Number": "",
-      Card: donation.methodDetails,
-      Note: donation.notes
-    }
-    data.push(row);
+
+  await runImport("Funds", async () => {
+  });
+
+  await runImport("Donation Batches", async () => {
+  });
+
+  await runImport("Donations", async () => {
+    donations.forEach((donation) => {
+      let batch: ImportDonationBatchInterface = ImportHelper.getByImportKey(batches, donation.batchKey);
+      let row = {
+        Date: batch.batchDate,
+        Batch: donation.batchKey,
+        "Payment ID": "",
+        "Person ID": donation.person?.id,
+        "First Name": donation.person?.name.first,
+        "Last Name": donation.person?.name.last,
+        Amount: donation.amount,
+        "Fund(s)": donation.fund?.name,
+        "Method ID": donation.method,
+        "Account Number": "",
+        "Check Number": "",
+        Card: donation.methodDetails,
+        Note: donation.notes
+      }
+      data.push(row);
+    });
+  });
+
+  await runImport("Donation Funds", async () => {
   });
   return data;
 }
 
-const getPhotos = (people: PersonInterface[], files: { name: string, contents: string | Buffer }[]) => {
-  let result: Promise<any>[] = [];
-  people.forEach(async (p) => {
-    if (p.photoUpdated !== undefined) result.push(UploadHelper.downloadImageBytes(files, p.id.toString() + ".png", p.photo));
+const exportAttendance = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  await runImport("Attendance", async () => {
+  });
+}
+
+const exportForms = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  await runImport("Forms", async () => {
   })
-  Promise.all(result);
+  await runImport("Questions", async () => {
+  })
+  await runImport("Answers", async () => {
+  })
+  await runImport("Form Submissions", async () => {
+  })
+}
+
+const exportPhotos = async (people: PersonInterface[], files: { name: string, contents: string | Buffer }[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+  await runImport("Photos", async () => {
+    let result: Promise<any>[] = [];
+    people.forEach(async (p) => {
+      if (p.photoUpdated !== undefined) result.push(UploadHelper.downloadImageBytes(files, p.id.toString() + ".png", p.photo));
+    })
+    Promise.all(result);
+  });
 }
 
 export default generateBreezeZip;
