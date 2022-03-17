@@ -14,12 +14,15 @@ import Papa from "papaparse";
 const generateChumsZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
   let files = [];
 
-  const runImport = async (keyName: string, code: () => void) => {
+  const sleep = (milliseconds: number) => { return new Promise(resolve => setTimeout(resolve, milliseconds)) }
+
+  const runImport = async (keyName: string, code: () => Promise<void>) => {
     updateProgress(keyName, "running");
-    try{
+    try {
       await code();
       updateProgress(keyName, "complete");
-    }catch(e){
+      await sleep(100);
+    } catch (e) {
       updateProgress(keyName, "error");
     }
   }
@@ -49,8 +52,8 @@ const generateChumsZip = async (importData: ImportDataInterface, updateProgress:
   compressZip(files, runImport);
 
 }
-const exportCampuses = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
-  const {campuses, services, serviceTimes} = importData;
+const exportCampuses = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
+  const { campuses, services, serviceTimes } = importData;
   let data: any[] = [];
   await runImport("Campuses/Services/Times", async () => {
     serviceTimes.forEach((st) => {
@@ -68,8 +71,8 @@ const exportCampuses = async (importData : ImportDataInterface, runImport: (keyN
   return Papa.unparse(data);
 }
 
-const exportGroupMembers = async (importData : ImportDataInterface,runImport: (keyName: string, code: () => void) => Promise<void>) => {
-  const {groupMembers} = importData;
+const exportGroupMembers = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
+  const { groupMembers } = importData;
   let data: any[] = [];
   await runImport("Group Members", async () => {
     groupMembers.forEach((gm) => {
@@ -80,13 +83,13 @@ const exportGroupMembers = async (importData : ImportDataInterface,runImport: (k
   return Papa.unparse(data);
 }
 
-const compressZip = async (files: {name: string, contents: any}[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+const compressZip = async (files: { name: string, contents: any }[], runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
   await runImport("Compressing", async () => {
     UploadHelper.zipFiles(files, "ChumsExport.zip");
   });
 }
 
-const exportPeople = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+const exportPeople = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
   let tmpHouseholds: ImportHouseholdInterface[] = [...importData.households];
   let data: any[] = [];
   const { people } = importData;
@@ -108,8 +111,8 @@ const exportPeople = async (importData: ImportDataInterface, runImport: (keyName
   return Papa.unparse(data);
 }
 
-const exportGroups = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
-  const {groups, groupServiceTimes} = importData;
+const exportGroups = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
+  const { groups, groupServiceTimes } = importData;
   let data: any[] = [];
   await runImport("Groups", async () => {
     groups.forEach((g) => {
@@ -134,8 +137,8 @@ const exportGroups = async (importData : ImportDataInterface, runImport: (keyNam
   return Papa.unparse(data);
 }
 
-const exportDonations = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
-  const {funds, batches, donations} = importData;
+const exportDonations = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
+  const { funds, batches, donations } = importData;
   let data: any[] = [];
 
   await runImport("Funds", async () => {
@@ -167,8 +170,8 @@ const exportDonations = async (importData : ImportDataInterface, runImport: (key
   return Papa.unparse(data);
 }
 
-const exportAttendance = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
-  const {sessions, visits, visitSessions} = importData;
+const exportAttendance = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
+  const { sessions, visits, visitSessions } = importData;
   let data: any[] = [];
   await runImport("Attendance", async () => {
     visitSessions.forEach((vs) => {
@@ -188,7 +191,7 @@ const exportAttendance = async (importData : ImportDataInterface, runImport: (ke
   return Papa.unparse(data);
 }
 
-const exportForms = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+const exportForms = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
   const { forms } = importData;
   let data: any[] = [];
   await runImport("Forms", async () => {
@@ -203,8 +206,8 @@ const exportForms = async (importData : ImportDataInterface, runImport: (keyName
   })
   return Papa.unparse(data);
 }
-const exportQuestions = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
-  const {questions} = importData;
+const exportQuestions = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
+  const { questions } = importData;
   let data: any[] = [];
   await runImport("Questions", async () => {
     questions.forEach(q => {
@@ -219,7 +222,7 @@ const exportQuestions = async (importData : ImportDataInterface, runImport: (key
   })
   return Papa.unparse(data);
 }
-const exportAnswers = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+const exportAnswers = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
   const { answers } = importData;
   let data: any[] = [];
   await runImport("Answers", async () => {
@@ -234,8 +237,8 @@ const exportAnswers = async (importData : ImportDataInterface, runImport: (keyNa
   })
   return Papa.unparse(data);
 }
-const exportFormSubmissions = async (importData : ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
-  const {formSubmissions} = importData;
+const exportFormSubmissions = async (importData: ImportDataInterface, runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
+  const { formSubmissions } = importData;
   let data: any[] = [];
   await runImport("Form Submissions", async () => {
     formSubmissions.forEach(fs => {
@@ -250,7 +253,7 @@ const exportFormSubmissions = async (importData : ImportDataInterface, runImport
   return Papa.unparse(data);
 }
 
-const exportPhotos = async (people: PersonInterface[], files: { name: string, contents: string | Buffer }[], runImport: (keyName: string, code: () => void) => Promise<void>) => {
+const exportPhotos = async (people: PersonInterface[], files: { name: string, contents: string | Buffer }[], runImport: (keyName: string, code: () => Promise<void>) => Promise<void>) => {
   await runImport("Photos", async () => {
     let result: Promise<any>[] = [];
     people.forEach(async (p) => {
