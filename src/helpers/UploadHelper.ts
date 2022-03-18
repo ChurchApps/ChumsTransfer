@@ -2,7 +2,7 @@ import Papa from "papaparse";
 import FileSaver from "file-saver";
 import { Buffer } from "buffer"
 import JSZip from "jszip";
-
+import * as XLSX from "xlsx";
 export class UploadHelper {
 
   static zipFiles(files: { name: string, contents: string | Buffer }[], zipFileName: string) {
@@ -29,7 +29,8 @@ export class UploadHelper {
           resolve();
         };
         oReq.send();
-      } catch {
+      } catch(e) {
+        console.log(e)
         reject(new DOMException("Could not download image."));
       }
     });
@@ -50,7 +51,10 @@ export class UploadHelper {
 
   static readCsvString(csv: string) {
     let result = [];
-    let data = Papa.parse(csv, { header: true });
+    let data = Papa.parse(csv, { header: true,
+      transformHeader:function(h) {
+        return h.trim();
+      } });
     for (let i = 0; i < data.data.length; i++) {
       let r: any = this.getStrippedRecord(data.data[i]);
       result.push(r);
@@ -58,7 +62,7 @@ export class UploadHelper {
     return result;
   }
 
-  static readCsv(file: File) {
+  static readCsv(file: File): Promise<unknown> {
     const reader = new FileReader();
     return new Promise((resolve, reject) => {
       reader.onload = () => {
@@ -78,6 +82,14 @@ export class UploadHelper {
       };
       reader.readAsText(file);
     });
+  }
+
+  static readXlsx(arrayBuffer: ArrayBuffer) {
+    let workbook = XLSX.read(arrayBuffer);
+    let worksheets = Object.values(workbook.Sheets)
+    const sheet = worksheets[0];
+    const data = XLSX.utils.sheet_to_json(sheet, {header: 0});
+    return data;
   }
 
   static getFile(files: FileList, fileName: string) {

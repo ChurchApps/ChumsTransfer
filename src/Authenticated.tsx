@@ -12,7 +12,7 @@ export const Authenticated: React.FC = () => {
 
   if (UserHelper.churchChanged) {
     UserHelper.churchChanged = false;
-    return <Navigate to="/people" />
+    return <Navigate to="/" />
   }
   else return (
     <>

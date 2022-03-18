@@ -1,26 +1,66 @@
-import React from "react";
-import { Button, Container } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Container, Tabs, Tab } from "react-bootstrap";
+import "react-activity/dist/Dots.css"
+import "react-activity/dist/Windmill.css"
 import { Footer, Header } from "./components"
+import { ImportDataInterface } from "./helpers/ImportHelper";
+import { TabSource } from "./components/TabSource";
+import { TabPreview } from "./components/TabPreview";
+import { TabDestination } from "./components/TabDestination";
+import { TabRun } from "./components/TabRun";
 
-export const Home = () => (
-  <>
-    <Header />
-    <Container>
-      <h1>Import/Export Tool</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis semper et magna in imperdiet. Pellentesque nec fermentum neque, sed accumsan ex. Suspendisse eu turpis vel mi bibendum dictum quis non nibh. Aliquam venenatis urna ac purus mattis aliquam. Nulla facilisi. In placerat ex congue, eleifend dolor sit amet, molestie magna. Aliquam imperdiet lacinia arcu eget accumsan. Nunc pulvinar facilisis porttitor. Quisque commodo nisl quam, nec posuere elit bibendum nec. Nam lacinia, odio et elementum tempor, purus dolor eleifend dui, in imperdiet ligula metus eget dui.</p>
+export const Home = () => {
+  const [dataImportSource, setDataImportSource] = useState<string | null>(null);
+  const [dataExportSource, setDataExportSource] = useState<string | null>(null);
 
-      <p>Sed semper dolor nulla, at pretium est placerat sed. Quisque tempor, odio quis iaculis bibendum, sapien tortor blandit est, quis vulputate leo tortor id dolor. Quisque sed ornare nunc, eu congue neque. Integer bibendum porttitor purus, sed cursus purus tincidunt vitae. Morbi ipsum urna, molestie id posuere in, luctus sit amet quam. Mauris pellentesque dolor a purus mollis iaculis a eget enim. Etiam et venenatis nibh, ac aliquam urna. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque tristique accumsan iaculis. Donec ut dolor augue. Proin sed felis elementum diam eleifend maximus. Morbi dictum et tortor eu condimentum.</p>
-      <hr />
-      <h2>Step 1 - Import Source</h2>
-      <Button variant="primary">Next Step</Button>
+  const [importData, setImportData] = useState<ImportDataInterface | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
-      <hr />
-      <Link to={"/settings/import"}>Temp Link to Old Import</Link><br />
-      <Link to={"/settings/export"}>Temp Link to Old Export</Link><br />
-      <br /><br />
+  const [status, setStatus] = useState<any>({});
+  const [activeTab, setActiveTab] = useState<string>("step1");
 
-    </Container>
-    <Footer />
-  </>
-)
+  const isLoadingSourceData = dataImportSource && !importData;
+
+  const handleStartOver = () => {
+    setActiveTab("step1")
+    setImportData(null)
+    setDataImportSource(null)
+    setDataExportSource(null)
+    setIsExporting(false)
+    setStatus({})
+  };
+
+  return (
+    <>
+      <Header />
+      <Container>
+        <h1>Import/Export Tool</h1>
+        <p>Welcome to the import/export tool for ChuMS.  You can use this file to backup your ChuMS data or transfer your data out of ChuMS to be used in another system.  If you're just getting started you can also use this tool to import existing data into ChuMS.</p>
+        <p>We support three different data formats at the moment; the ChuMS export file format, along with Breeze and Planning Center file formats.  You can use this tool to convert between any of these three in addition to reading/writing to your hosted ChuMS database.</p>
+        <hr />
+
+        <Tabs activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)} defaultActiveKey="step1" className="importWizard">
+          <Tab eventKey="step1" title="Step 1 - Source" disabled={activeTab !== "step1"}>
+            <TabSource importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} setDataImportSource={setDataImportSource} setImportData={setImportData} />
+          </Tab>
+          <Tab eventKey="step2" title="Step 2 - Preview" disabled={activeTab !== "step2"}>
+            <TabPreview importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} />
+          </Tab>
+          <Tab eventKey="step3" title="Step 3 - Destination" disabled={activeTab !== "step3"}>
+            <TabDestination importData={importData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} dataExportSource={dataExportSource} setDataExportSource={setDataExportSource} setIsExporting={setIsExporting} setStatus={setStatus} />
+          </Tab>
+          <Tab eventKey="step4" title="Step 4 - Run" disabled={activeTab !== "step4"}>
+            <TabRun dataExportSource={dataExportSource} isExporting={isExporting} status={status} />
+          </Tab>
+        </Tabs>
+        <br />
+        {importData && (
+          <button onClick={handleStartOver} className="btn btn-outline-danger">Start Over</button>
+        )}
+        <br /><br />
+
+      </Container>
+      <Footer />
+    </>
+  )
+}

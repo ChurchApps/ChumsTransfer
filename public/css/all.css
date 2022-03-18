@@ -171,7 +171,13 @@ h1 {
   margin-top: 6px;
 }
 
+.inline-child {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .statusList li {
+  list-style-type: none;
   margin-left: 20px;
   margin-bottom: 0px !important;
 }
@@ -187,15 +193,14 @@ h1 {
   color: #999;
 }
 
-.statusList li.running:before {
-  content: "\f70c";
-  color: #ffc107;
-}
-
-.statusList li:before,
 .statusList li.complete:before {
   content: "\f00c";
   color: #1c7430;
+}
+
+.statusList li.error:before {
+  content: "\f00d";
+  color: #fa0202;
 }
 
 .report .heading1 {
@@ -505,6 +510,9 @@ label .description {
   overflow-x: auto;
   white-space: nowrap;
 }
+
+.importWizard { margin-bottom: 0px;}
+.tab-content {background-color: #FFF;border:1px solid #CCC; padding:10px;}
 
 @media print {
   .form-submission-summary {

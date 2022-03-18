@@ -5,7 +5,7 @@ export interface ImportServiceInterface extends ServiceInterface { importKey: st
 export interface ImportServiceTimeInterface extends ServiceTimeInterface { importKey?: string, serviceKey?: string }
 
 export interface ImportGroupServiceTimeInterface extends GroupServiceTimeInterface { importKey: string, groupKey?: string, serviceTimeKey?: string }
-export interface ImportGroupInterface extends GroupInterface { importKey: string, serviceTimeKey: string }
+export interface ImportGroupInterface extends GroupInterface { importKey: string, serviceTimeKey: string, startDate: Date, endDate: Date }
 export interface ImportGroupMemberInterface extends GroupMemberInterface { groupKey: string, personKey: string }
 
 export interface ImportPersonInterface extends PersonInterface { importKey: string, householdKey?: string, }
@@ -17,7 +17,7 @@ export interface ImportVisitSessionInterface extends VisitSessionInterface { vis
 
 export interface ImportDonationBatchInterface extends DonationBatchInterface { importKey: string }
 export interface ImportFundInterface extends FundInterface { importKey: string }
-export interface ImportDonationInterface extends DonationInterface { importKey: string, batchKey: string, personKey: string }
+export interface ImportDonationInterface extends DonationInterface { importKey: string, batchKey: string, personKey: string, fundKey: string }
 export interface ImportFundDonationInterface extends FundDonationInterface { fundKey: string, donationKey: string }
 
 export interface ImportFormsInterface extends FormInterface { importKey: string }
@@ -138,7 +138,7 @@ export class ImportHelper {
       result = data as ImportGroupInterface;
       result.trackAttendance = (data.trackAttendance === "TRUE");
       result.parentPickup = (data.parentPickup === "TRUE");
-      if (result.importKey === "") result.importKey = (groups.length + 1).toString();
+      if (result.importKey === "" || result.importKey === undefined || result.importKey === null) result.importKey = (groups.length + 1).toString();
       groups.push(result);
     }
     return result;

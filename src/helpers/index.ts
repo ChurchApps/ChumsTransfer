@@ -6,3 +6,4 @@ export { PersonHelper } from "./PersonHelper";
 export { ImportHelper } from "./ImportHelper";
 export { UploadHelper } from "./UploadHelper";
 export { ReportHelper } from "./ReportHelper";
+export { DownloadHelper } from "./DownloadHelper"
