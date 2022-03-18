@@ -40,7 +40,7 @@ export const Home = () => {
 
         <Tabs activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)} defaultActiveKey="step1" className="importWizard">
           <Tab eventKey="step1" title="Step 1 - Source">
-            <TabSource importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} setDataImportSource={setDataImportSource} setImportData={setImportData} startOver={handleStartOver} />
+            <TabSource importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} setDataImportSource={setDataImportSource} setImportData={setImportData} />
           </Tab>
           <Tab eventKey="step2" title="Step 2 - Preview">
             <TabPreview importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} />
@@ -52,6 +52,10 @@ export const Home = () => {
             <TabRun dataExportSource={dataExportSource} isExporting={isExporting} status={status} />
           </Tab>
         </Tabs>
+        <br />
+        {importData && (
+          <button onClick={handleStartOver} className="btn btn-outline-danger">Start Over</button>
+        )}
         <br /><br />
 
       </Container>

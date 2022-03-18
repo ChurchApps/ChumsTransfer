@@ -12,7 +12,6 @@ interface Props {
   importData: ImportDataInterface;
   isLoadingSourceData: boolean;
   setActiveTab: (tabName: string) => void
-  startOver: () => void
   setImportData: (data: ImportDataInterface) => void
   setDataImportSource: (data: string | null) => void
 }
@@ -96,8 +95,6 @@ export const TabSource = (props: Props) => {
         <button onClick={handleSelectFile} className="btn btn-outline-primary">Upload</button>
       </>
     )}
-    {props.importData && (
-      <button onClick={props.startOver} className="btn btn-outline-danger">Start Over</button>
-    )}
+
   </>);
 }
