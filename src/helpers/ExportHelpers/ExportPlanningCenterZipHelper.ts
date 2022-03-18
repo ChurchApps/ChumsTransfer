@@ -5,9 +5,12 @@ import Papa from "papaparse";
 const generatePlanningCenterZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
   let files: { name: string, contents: any }[] = [];
 
+  const sleep = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))
+
   const runImport = async (keyName: string, code: () => void) => {
     updateProgress(keyName, "running");
     try{
+      await sleep(100);
       await code();
       updateProgress(keyName, "complete");
     }catch(e){
@@ -16,9 +19,6 @@ const generatePlanningCenterZip = async (importData: ImportDataInterface, update
   }
 
   exportCampuses(importData, runImport)
-
-  let pp = await exportPeople(importData, runImport)
-  console.log(pp)
 
   files.push({ name: "people.csv", contents: await exportPeople(importData, runImport) });
 

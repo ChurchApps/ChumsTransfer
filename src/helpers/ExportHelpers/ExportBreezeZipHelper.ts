@@ -10,9 +10,12 @@ import {
 
 const generateBreezeZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
 
+  const sleep = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))
+
   const runImport = async (keyName: string, code: () => void) => {
     updateProgress(keyName, "running");
     try{
+      await sleep(100);
       await code();
       updateProgress(keyName, "complete");
     }catch(e){

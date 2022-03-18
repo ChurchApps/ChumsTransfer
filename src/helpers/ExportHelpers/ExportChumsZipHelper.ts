@@ -14,14 +14,14 @@ import Papa from "papaparse";
 const generateChumsZip = async (importData: ImportDataInterface, updateProgress: (name: string, status: string) => void) => {
   let files = [];
 
-  const sleep = (milliseconds: number) => { return new Promise(resolve => setTimeout(resolve, milliseconds)) }
+  const sleep = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))
 
   const runImport = async (keyName: string, code: () => Promise<void>) => {
     updateProgress(keyName, "running");
     try {
+      await sleep(100);
       await code();
       updateProgress(keyName, "complete");
-      await sleep(100);
     } catch (e) {
       updateProgress(keyName, "error");
     }
