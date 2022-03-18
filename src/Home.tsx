@@ -2,11 +2,9 @@ import React, { useState, useRef } from "react";
 import { Container, Dropdown, DropdownButton, Tabs, Tab } from "react-bootstrap";
 import "react-activity/dist/Dots.css"
 import "react-activity/dist/Windmill.css"
-import { Dots, Windmill } from "react-activity";
-import { Link } from "react-router-dom";
+import { Windmill } from "react-activity";
 import { Footer, Header, DisplayBox } from "./components"
 import { DataSourceType } from "./types/index"
-import { ImportPreview } from "./settings/components/ImportPreview";
 import readChumsZip from "./helpers/ImportHelpers/ImportChumsZipHelper"
 import getChumsData from "./helpers/ImportHelpers/ImportChumsDbHelper"
 import readBreezeZip from "./helpers/ImportHelpers/ImportBreezeZipHelper"
@@ -17,6 +15,7 @@ import exportToChumsDb from "./helpers/ExportHelpers/ExportChumsDbHelper"
 import generatePlanningCenterZip from "./helpers/ExportHelpers/ExportPlanningCenterZipHelper"
 
 import { ImportDataInterface } from "./helpers/ImportHelper";
+import { TabPreview } from "./components/TabPreview";
 
 const dataSourceDropDown = [
   { label: "Chums DB", value: DataSourceType.CHUMS_DB },
@@ -189,23 +188,7 @@ export const Home = () => {
             </>
           </Tab>
           <Tab eventKey="step2" title="Step 2 - Preview">
-            <>
-              <h2>Step 2 - Preview</h2>
-              {isLoadingSourceData && dataImportSource === DataSourceType.CHUMS_DB && (
-                <div style={{ justifyContent: "center", display: "flex" }}>
-                  <Dots color="#727981" size={34} speed={1} animating={true} />
-                </div>
-              )}
-              {importData && (
-                <ImportPreview triggerRender={1} importData={importData} />
-              )}
-              <br />
-              <div>
-                <button onClick={() => setActiveTab("step3")} className="btn btn-success float-right">Continue</button>
-              </div>
-              <br />
-              <br />
-            </>
+            <TabPreview importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} />
           </Tab>
           <Tab eventKey="step3" title="Step 3 - Destination">
             <>
