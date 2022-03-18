@@ -22,6 +22,7 @@ export const Home = () => {
   const isLoadingSourceData = dataImportSource && !importData;
 
   const handleStartOver = () => {
+    setActiveTab("step1")
     setImportData(null)
     setDataImportSource(null)
     setDataExportSource(null)
@@ -39,16 +40,16 @@ export const Home = () => {
         <hr />
 
         <Tabs activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)} defaultActiveKey="step1" className="importWizard">
-          <Tab eventKey="step1" title="Step 1 - Source">
+          <Tab eventKey="step1" title="Step 1 - Source" disabled={activeTab !== "step1"}>
             <TabSource importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} setDataImportSource={setDataImportSource} setImportData={setImportData} />
           </Tab>
-          <Tab eventKey="step2" title="Step 2 - Preview">
+          <Tab eventKey="step2" title="Step 2 - Preview" disabled={activeTab !== "step2"}>
             <TabPreview importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} />
           </Tab>
-          <Tab eventKey="step3" title="Step 3 - Destination">
+          <Tab eventKey="step3" title="Step 3 - Destination" disabled={activeTab !== "step3"}>
             <TabDestination importData={importData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} dataExportSource={dataExportSource} setDataExportSource={setDataExportSource} setIsExporting={setIsExporting} setStatus={setStatus} />
           </Tab>
-          <Tab eventKey="step4" title="Step 4 - Run">
+          <Tab eventKey="step4" title="Step 4 - Run" disabled={activeTab !== "step4"}>
             <TabRun dataExportSource={dataExportSource} isExporting={isExporting} status={status} />
           </Tab>
         </Tabs>

@@ -20,6 +20,7 @@ const exportToChumsDb = async (exportData: ImportDataInterface, updateProgress: 
       await code();
       updateProgress(keyName, "complete");
     }catch(e){
+      if(e instanceof Error && e.message.includes("Unauthorized"))alert("Please log in to access Chums data")
       updateProgress(keyName, "error");
       throw(e)
     }

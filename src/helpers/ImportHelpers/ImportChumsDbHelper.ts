@@ -35,7 +35,9 @@ let formSubmissions: ImportFormSubmissions[] = [];
 let answers:ImportAnswerInterface[] = [];
 
 const getChumsData = async (): Promise<ImportDataInterface> => {
-  await Promise.all([getPeople(), getCampusServiceTimes(), getGroups(), getGroupMembers(), getAttendance(), getDonations(), getForms(), getQuestions(), getFormSubmissions(), getAnswers()])
+  await Promise.all([getPeople(), getCampusServiceTimes(), getGroups(), getGroupMembers(), getAttendance(), getDonations(), getForms(), getQuestions(), getFormSubmissions(), getAnswers()]).catch(error => {
+    if(error.message.includes("Unauthorized"))alert("Please log in to access Chums data")
+  });
 
   return {
     people: people,
@@ -66,7 +68,7 @@ const getCampusServiceTimes = async () => {
   promises.push(ApiHelper.get("/campuses", "AttendanceApi").then(data => campuses = data));
   promises.push(ApiHelper.get("/services", "AttendanceApi").then(data => services = data));
   promises.push(ApiHelper.get("/servicetimes", "AttendanceApi").then(data => serviceTimes = data));
-  await Promise.all(promises);
+  await Promise.all(promises)
   let data: any[] = [];
   serviceTimes.forEach((st) => {
     let service: ImportServiceInterface = ImportHelper.getById(services, st.serviceId);
