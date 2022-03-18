@@ -29,7 +29,5 @@ export const TabPreview = (props: Props) => {
     </div>
     <br />
     <br />
-
   </>)
-
 }

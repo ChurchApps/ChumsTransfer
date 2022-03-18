@@ -1,58 +1,32 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Container, Dropdown, DropdownButton, Tabs, Tab } from "react-bootstrap";
 import "react-activity/dist/Dots.css"
 import "react-activity/dist/Windmill.css"
 import { Windmill } from "react-activity";
 import { Footer, Header, DisplayBox } from "./components"
 import { DataSourceType } from "./types/index"
-import readChumsZip from "./helpers/ImportHelpers/ImportChumsZipHelper"
-import getChumsData from "./helpers/ImportHelpers/ImportChumsDbHelper"
-import readBreezeZip from "./helpers/ImportHelpers/ImportBreezeZipHelper"
-import readPlanningCenterZip from "./helpers/ImportHelpers/ImportPlanningCenterZipHelper"
 import generateBreezeZip from "./helpers/ExportHelpers/ExportBreezeZipHelper"
 import generateChumsZip from "./helpers/ExportHelpers/ExportChumsZipHelper"
 import exportToChumsDb from "./helpers/ExportHelpers/ExportChumsDbHelper"
 import generatePlanningCenterZip from "./helpers/ExportHelpers/ExportPlanningCenterZipHelper"
 
 import { ImportDataInterface } from "./helpers/ImportHelper";
+import { TabSource } from "./components/TabSource";
 import { TabPreview } from "./components/TabPreview";
 
-const dataSourceDropDown = [
-  { label: "Chums DB", value: DataSourceType.CHUMS_DB },
-  { label: "Chums zip", value: DataSourceType.CHUMS_ZIP },
-  { label: "Breeze zip", value: DataSourceType.BREEZE_ZIP },
-  { label: "Planning center zip", value: DataSourceType.PLANNING_CENTER_ZIP }
-];
 export const Home = () => {
   const [dataImportSource, setDataImportSource] = useState<string | null>(null);
   const [dataExportSource, setDataExportSource] = useState<string | null>(null);
-  const [, setUploadedFileName] = useState<string | null>(null);
+
   const [importData, setImportData] = useState<ImportDataInterface | null>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+
   const [status, setStatus] = useState<any>({});
   const [activeTab, setActiveTab] = useState<string>("step1");
-  const inputIsFile = dataImportSource !== DataSourceType.CHUMS_DB;
+
   const isLoadingSourceData = dataImportSource && !importData;
   let progress: any = {};
 
-  const handleSelectFile = () => {
-    inputRef.current?.click();
-  };
-  const handleStartOver = () => {
-    setImportData(null)
-    setDataImportSource(null)
-    setDataExportSource(null)
-    setIsExporting(false)
-    setStatus({})
-  };
-  const handleImportSelection = (e: string) => {
-    setDataImportSource(e)
-    if (e === DataSourceType.CHUMS_DB) {
-      setActiveTab("step2")
-      importFromDb();
-    }
-  };
   const getProgress = (name: string) => {
 
     if (status[name] === undefined) return (<li className="pending" key={name}>{name}</li>);
@@ -71,40 +45,15 @@ export const Home = () => {
     progress[name] = status;
     setStatus({ ...progress });
   }
-  const importFromDb = async () => {
+
+  const handleStartOver = () => {
     setImportData(null)
-    let importData: ImportDataInterface;
-    importData = await getChumsData();
-    setImportData(importData);
+    setDataImportSource(null)
+    setDataExportSource(null)
+    setIsExporting(false)
+    setStatus({})
   };
-  const handleDisplayFileDetails = () => {
-    inputRef.current?.files
-      && setUploadedFileName(inputRef.current.files[0].name);
-    handleUpload();
-  };
-  const handleUpload = async () => {
-    setActiveTab("step2")
-    setImportData(null)
-    let importData: ImportDataInterface;
-    switch (dataImportSource) {
-      case DataSourceType.CHUMS_ZIP: {
-        importData = await readChumsZip(inputRef.current?.files[0])
-        break;
-      }
-      case DataSourceType.BREEZE_ZIP: {
-        importData = await readBreezeZip(inputRef.current?.files[0])
-        break;
-      }
-      case DataSourceType.PLANNING_CENTER_ZIP: {
-        importData = await readPlanningCenterZip(inputRef.current?.files[0])
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-    setImportData(importData);
-  }
+
   const handleExport = async (e: string) => {
     setDataExportSource(e)
     if (e === dataImportSource) {
@@ -164,28 +113,7 @@ export const Home = () => {
 
         <Tabs activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)} defaultActiveKey="step1" className="importWizard">
           <Tab eventKey="step1" title="Step 1 - Source">
-            <>
-              <h2>Step 1 - Import Source</h2>
-              <p>Choose data source for import data</p>
-              <DropdownButton id="dropdown-import-types" title={dataImportSource ?? "Choose One"} onSelect={(e) => handleImportSelection(e)}>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums Database</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums Import Zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze Import Zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</Dropdown.Item>
-              </DropdownButton>
-              <br></br>
-              <br></br>
-              {(dataImportSource && inputIsFile && importData == null) && (
-                <>
-                  <label className="mx-3">Please select your {dataSourceDropDown.find(s => s.value === dataImportSource).label} file </label>
-                  <input ref={inputRef} className="d-none" type="file" onChange={handleDisplayFileDetails} />
-                  <button onClick={handleSelectFile} className="btn btn-outline-primary">Upload</button>
-                </>
-              )}
-              {importData && (
-                <button onClick={handleStartOver} className="btn btn-outline-danger">Start Over</button>
-              )}
-            </>
+            <TabSource importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} setDataImportSource={setDataImportSource} setImportData={setImportData} startOver={handleStartOver} />
           </Tab>
           <Tab eventKey="step2" title="Step 2 - Preview">
             <TabPreview importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} />
