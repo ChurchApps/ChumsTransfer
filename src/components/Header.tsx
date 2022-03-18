@@ -19,7 +19,7 @@ export const Header: React.FC = () => {
           </Col>
           <div className="col-6 col-lg-2-5 text-right" id="navRight">
             {getHeaderLink()}
-            <a href="/#register" className="btn btn-success btn-sm">Get Started</a>
+            <a href="https://chums.org/" className="btn btn-success btn-sm">Go to ChuMS</a>
           </div>
         </Row>
       </Container>

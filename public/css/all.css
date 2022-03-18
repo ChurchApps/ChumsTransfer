@@ -511,6 +511,9 @@ label .description {
   white-space: nowrap;
 }
 
+.importWizard { margin-bottom: 0px;}
+.tab-content {background-color: #FFF;border:1px solid #CCC; padding:10px;}
+
 @media print {
   .form-submission-summary {
     margin: 20px;

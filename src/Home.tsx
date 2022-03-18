@@ -19,10 +19,10 @@ import generatePlanningCenterZip from "./helpers/ExportHelpers/ExportPlanningCen
 import { ImportDataInterface } from "./helpers/ImportHelper";
 
 const dataSourceDropDown = [
-  {label: "Chums DB", value: DataSourceType.CHUMS_DB},
-  {label: "Chums zip", value: DataSourceType.CHUMS_ZIP},
-  {label: "Breeze zip", value: DataSourceType.BREEZE_ZIP},
-  {label: "Planning center zip", value: DataSourceType.PLANNING_CENTER_ZIP}
+  { label: "Chums DB", value: DataSourceType.CHUMS_DB },
+  { label: "Chums zip", value: DataSourceType.CHUMS_ZIP },
+  { label: "Breeze zip", value: DataSourceType.BREEZE_ZIP },
+  { label: "Planning center zip", value: DataSourceType.PLANNING_CENTER_ZIP }
 ];
 export const Home = () => {
   const [dataImportSource, setDataImportSource] = useState<string | null>(null);
@@ -49,7 +49,7 @@ export const Home = () => {
   };
   const handleImportSelection = (e: string) => {
     setDataImportSource(e)
-    if(e === DataSourceType.CHUMS_DB){
+    if (e === DataSourceType.CHUMS_DB) {
       setActiveTab("step2")
       importFromDb();
     }
@@ -62,7 +62,7 @@ export const Home = () => {
 
     if (status[name] === "running") return (
       <li key={name}>
-        <Windmill className="inline-child" color="#727981" size={14} speed={1} animating={true} style={{marginRight:10}} />
+        <Windmill className="inline-child" color="#727981" size={14} speed={1} animating={true} style={{ marginRight: 10 }} />
         <span className="inline-child">{name}</span>
       </li>
     );
@@ -87,7 +87,7 @@ export const Home = () => {
     setActiveTab("step2")
     setImportData(null)
     let importData: ImportDataInterface;
-    switch(dataImportSource) {
+    switch (dataImportSource) {
       case DataSourceType.CHUMS_ZIP: {
         importData = await readChumsZip(inputRef.current?.files[0])
         break;
@@ -108,13 +108,13 @@ export const Home = () => {
   }
   const handleExport = async (e: string) => {
     setDataExportSource(e)
-    if(e === dataImportSource){
+    if (e === dataImportSource) {
       alert("Export source must be different than import source to avoid duplication of data")
       return;
-    }else {
+    } else {
       setIsExporting(true)
       setActiveTab("step4")
-      switch(e) {
+      switch (e) {
         case DataSourceType.CHUMS_DB: {
           await exportToChumsDb(importData, setProgress)
           break;
@@ -141,7 +141,7 @@ export const Home = () => {
     if (!isExporting) return null;
     else {
       let steps = ["Campuses/Services/Times", "People", "Photos", "Groups", "Group Members", "Donations", "Attendance", "Forms", "Questions", "Answers", "Form Submissions", "Compressing"];
-      if(dataExportSource === DataSourceType.CHUMS_DB)steps = steps.filter(s => s !== "Compressing")
+      if (dataExportSource === DataSourceType.CHUMS_DB) steps = steps.filter(s => s !== "Compressing")
       let stepsHtml: JSX.Element[] = [];
       steps.forEach((s) => stepsHtml.push(getProgress(s)));
 
@@ -159,20 +159,20 @@ export const Home = () => {
       <Header />
       <Container>
         <h1>Import/Export Tool</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis semper et magna in imperdiet. Pellentesque nec fermentum neque, sed accumsan ex. Suspendisse eu turpis vel mi bibendum dictum quis non nibh. Aliquam venenatis urna ac purus mattis aliquam. Nulla facilisi. In placerat ex congue, eleifend dolor sit amet, molestie magna. Aliquam imperdiet lacinia arcu eget accumsan. Nunc pulvinar facilisis porttitor. Quisque commodo nisl quam, nec posuere elit bibendum nec. Nam lacinia, odio et elementum tempor, purus dolor eleifend dui, in imperdiet ligula metus eget dui.</p>
-        <p>Sed semper dolor nulla, at pretium est placerat sed. Quisque tempor, odio quis iaculis bibendum, sapien tortor blandit est, quis vulputate leo tortor id dolor. Quisque sed ornare nunc, eu congue neque. Integer bibendum porttitor purus, sed cursus purus tincidunt vitae. Morbi ipsum urna, molestie id posuere in, luctus sit amet quam. Mauris pellentesque dolor a purus mollis iaculis a eget enim. Etiam et venenatis nibh, ac aliquam urna. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque tristique accumsan iaculis. Donec ut dolor augue. Proin sed felis elementum diam eleifend maximus. Morbi dictum et tortor eu condimentum.</p>
+        <p>Welcome to the import/export tool for ChuMS.  You can use this file to backup your ChuMS data or transfer your data out of ChuMS to be used in another system.  If you're just getting started you can also use this tool to import existing data into ChuMS.</p>
+        <p>We support three different data formats at the moment; the ChuMS export file format, along with Breeze and Planning Center file formats.  You can use this tool to convert between any of these three in addition to reading/writing to your hosted ChuMS database.</p>
         <hr />
 
-        <Tabs activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)} defaultActiveKey="step1" id="uncontrolled-tab-example" className="mb-3">
-          <Tab eventKey="step1" title="Step 1">
+        <Tabs activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)} defaultActiveKey="step1" className="importWizard">
+          <Tab eventKey="step1" title="Step 1 - Source">
             <>
               <h2>Step 1 - Import Source</h2>
               <p>Choose data source for import data</p>
               <DropdownButton id="dropdown-import-types" title={dataImportSource ?? "Choose One"} onSelect={(e) => handleImportSelection(e)}>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums DB</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning center zip</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums Database</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums Import Zip</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze Import Zip</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</Dropdown.Item>
               </DropdownButton>
               <br></br>
               <br></br>
@@ -188,35 +188,40 @@ export const Home = () => {
               )}
             </>
           </Tab>
-          <Tab eventKey="step2" title="Step 2">
+          <Tab eventKey="step2" title="Step 2 - Preview">
             <>
               <h2>Step 2 - Preview</h2>
-              <button onClick={() => setActiveTab("step3")} className="btn btn-success">Next Step</button>
               {isLoadingSourceData && dataImportSource === DataSourceType.CHUMS_DB && (
-                <div style={{justifyContent: "center", display: "flex"}}>
+                <div style={{ justifyContent: "center", display: "flex" }}>
                   <Dots color="#727981" size={34} speed={1} animating={true} />
                 </div>
               )}
               {importData && (
                 <ImportPreview triggerRender={1} importData={importData} />
               )}
+              <br />
+              <div>
+                <button onClick={() => setActiveTab("step3")} className="btn btn-success float-right">Continue</button>
+              </div>
+              <br />
+              <br />
             </>
           </Tab>
-          <Tab eventKey="step3" title="Step 3">
+          <Tab eventKey="step3" title="Step 3 - Destination">
             <>
-              <h2>Step 3 - Choose Export Source</h2>
+              <h2>Step 3 - Choose Export Destination</h2>
               <p>Choose export format</p>
               <DropdownButton id="dropdown-export-types" title={dataExportSource ?? "Choose One"} onSelect={(e) => handleExport(e)}>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums DB</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning center zip</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums Database</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums Export Zip</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze Export Zip</Dropdown.Item>
+                <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</Dropdown.Item>
               </DropdownButton>
               <br></br>
               <br></br>
             </>
           </Tab>
-          <Tab eventKey="step4" title="Step 4">
+          <Tab eventKey="step4" title="Step 4 - Run">
             <>
               <h2>Step 4 - Export Progress</h2>
               {dataExportSource && isExporting && (
@@ -225,13 +230,10 @@ export const Home = () => {
             </>
           </Tab>
         </Tabs>
-
-        <hr />
-        <Link to={"/settings/import"}>Temp Link to Old Import</Link><br />
-        <Link to={"/settings/export"}>Temp Link to Old Export</Link><br />
         <br /><br />
 
       </Container>
       <Footer />
     </>
-  )}
+  )
+}
