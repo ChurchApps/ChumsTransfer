@@ -5,14 +5,12 @@ import "react-activity/dist/Windmill.css"
 import { Windmill } from "react-activity";
 import { Footer, Header, DisplayBox } from "./components"
 import { DataSourceType } from "./types/index"
-import generateBreezeZip from "./helpers/ExportHelpers/ExportBreezeZipHelper"
-import generateChumsZip from "./helpers/ExportHelpers/ExportChumsZipHelper"
-import exportToChumsDb from "./helpers/ExportHelpers/ExportChumsDbHelper"
-import generatePlanningCenterZip from "./helpers/ExportHelpers/ExportPlanningCenterZipHelper"
+
 
 import { ImportDataInterface } from "./helpers/ImportHelper";
 import { TabSource } from "./components/TabSource";
 import { TabPreview } from "./components/TabPreview";
+import { TabDestination } from "./components/TabDestination";
 
 export const Home = () => {
   const [dataImportSource, setDataImportSource] = useState<string | null>(null);
@@ -25,7 +23,6 @@ export const Home = () => {
   const [activeTab, setActiveTab] = useState<string>("step1");
 
   const isLoadingSourceData = dataImportSource && !importData;
-  let progress: any = {};
 
   const getProgress = (name: string) => {
 
@@ -41,10 +38,6 @@ export const Home = () => {
     );
     else return (<li className={status[name]} key={name}>{name}</li>);
   }
-  const setProgress = (name: string, status: string) => {
-    progress[name] = status;
-    setStatus({ ...progress });
-  }
 
   const handleStartOver = () => {
     setImportData(null)
@@ -54,37 +47,6 @@ export const Home = () => {
     setStatus({})
   };
 
-  const handleExport = async (e: string) => {
-    setDataExportSource(e)
-    if (e === dataImportSource) {
-      alert("Export source must be different than import source to avoid duplication of data")
-      return;
-    } else {
-      setIsExporting(true)
-      setActiveTab("step4")
-      switch (e) {
-        case DataSourceType.CHUMS_DB: {
-          await exportToChumsDb(importData, setProgress)
-          break;
-        }
-        case DataSourceType.CHUMS_ZIP: {
-          await generateChumsZip(importData, setProgress)
-          break;
-        }
-        case DataSourceType.BREEZE_ZIP: {
-          generateBreezeZip(importData, setProgress)
-          break;
-        }
-        case DataSourceType.PLANNING_CENTER_ZIP: {
-          generatePlanningCenterZip(importData, setProgress)
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-    }
-  };
   const getExportSteps = () => {
     if (!isExporting) return null;
     else {
@@ -119,18 +81,7 @@ export const Home = () => {
             <TabPreview importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} />
           </Tab>
           <Tab eventKey="step3" title="Step 3 - Destination">
-            <>
-              <h2>Step 3 - Choose Export Destination</h2>
-              <p>Choose export format</p>
-              <DropdownButton id="dropdown-export-types" title={dataExportSource ?? "Choose One"} onSelect={(e) => handleExport(e)}>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums Database</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums Export Zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze Export Zip</Dropdown.Item>
-                <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</Dropdown.Item>
-              </DropdownButton>
-              <br></br>
-              <br></br>
-            </>
+            <TabDestination importData={importData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} dataExportSource={dataExportSource} setDataExportSource={setDataExportSource} setIsExporting={setIsExporting} setStatus={setStatus} />
           </Tab>
           <Tab eventKey="step4" title="Step 4 - Run">
             <>
