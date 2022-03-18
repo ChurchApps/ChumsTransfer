@@ -20,7 +20,6 @@ interface Props {
 export const TabDestination = (props: Props) => {
   let progress: any = {};
 
-
   const setProgress = (name: string, status: string) => {
     progress[name] = status;
     props.setStatus({ ...progress });

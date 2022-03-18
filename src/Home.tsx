@@ -1,16 +1,13 @@
 import React, { useState } from "react";
-import { Container, Dropdown, DropdownButton, Tabs, Tab } from "react-bootstrap";
+import { Container, Tabs, Tab } from "react-bootstrap";
 import "react-activity/dist/Dots.css"
 import "react-activity/dist/Windmill.css"
-import { Windmill } from "react-activity";
-import { Footer, Header, DisplayBox } from "./components"
-import { DataSourceType } from "./types/index"
-
-
+import { Footer, Header } from "./components"
 import { ImportDataInterface } from "./helpers/ImportHelper";
 import { TabSource } from "./components/TabSource";
 import { TabPreview } from "./components/TabPreview";
 import { TabDestination } from "./components/TabDestination";
+import { TabRun } from "./components/TabRun";
 
 export const Home = () => {
   const [dataImportSource, setDataImportSource] = useState<string | null>(null);
@@ -24,21 +21,6 @@ export const Home = () => {
 
   const isLoadingSourceData = dataImportSource && !importData;
 
-  const getProgress = (name: string) => {
-
-    if (status[name] === undefined) return (<li className="pending" key={name}>{name}</li>);
-
-    if (status[name] === "error") return (<li className="error" key={name}>{name}</li>);
-
-    if (status[name] === "running") return (
-      <li key={name}>
-        <Windmill className="inline-child" color="#727981" size={14} speed={1} animating={true} style={{ marginRight: 10 }} />
-        <span className="inline-child">{name}</span>
-      </li>
-    );
-    else return (<li className={status[name]} key={name}>{name}</li>);
-  }
-
   const handleStartOver = () => {
     setImportData(null)
     setDataImportSource(null)
@@ -47,23 +29,6 @@ export const Home = () => {
     setStatus({})
   };
 
-  const getExportSteps = () => {
-    if (!isExporting) return null;
-    else {
-      let steps = ["Campuses/Services/Times", "People", "Photos", "Groups", "Group Members", "Donations", "Attendance", "Forms", "Questions", "Answers", "Form Submissions", "Compressing"];
-      if (dataExportSource === DataSourceType.CHUMS_DB) steps = steps.filter(s => s !== "Compressing")
-      let stepsHtml: JSX.Element[] = [];
-      steps.forEach((s) => stepsHtml.push(getProgress(s)));
-
-      return (
-        <DisplayBox headerText="Export" headerIcon="fas fa-download">
-          Exporting content:
-          <ul className="statusList">{stepsHtml}</ul>
-          <p>This process may take some time.  It is important that you do not close your browser until it has finished.</p>
-        </DisplayBox>
-      );
-    }
-  }
   return (
     <>
       <Header />
@@ -84,12 +49,7 @@ export const Home = () => {
             <TabDestination importData={importData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} dataExportSource={dataExportSource} setDataExportSource={setDataExportSource} setIsExporting={setIsExporting} setStatus={setStatus} />
           </Tab>
           <Tab eventKey="step4" title="Step 4 - Run">
-            <>
-              <h2>Step 4 - Export Progress</h2>
-              {dataExportSource && isExporting && (
-                <div>{getExportSteps()}</div>
-              )}
-            </>
+            <TabRun dataExportSource={dataExportSource} isExporting={isExporting} status={status} />
           </Tab>
         </Tabs>
         <br /><br />
