@@ -1,7 +1,7 @@
 import React from "react"
 import { Dots } from "react-activity";
 import { ImportDataInterface } from "../helpers/ImportHelper";
-import { ImportPreview } from "../settings/components";
+import { ImportPreview } from "../components";
 import { DataSourceType } from "../types";
 
 interface Props {

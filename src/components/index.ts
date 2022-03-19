@@ -1,5 +1,5 @@
 export { ErrorMessages, ExportLink, DisplayBox, InputBox, PersonAdd, Loading } from "../appBase/components"
 export * from "../helpers"
 export { Header } from "./Header"
+export { ImportPreview } from "./ImportPreview"
 export { Footer } from "./Footer"
-export { NavItems } from "./NavItems"

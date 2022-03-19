@@ -1,7 +1,7 @@
 import React from "react";
 import { Table, Tabs, Tab, Alert } from "react-bootstrap";
 import { DisplayBox, ImportHelper, DateHelper, CurrencyHelper } from ".";
-import { ImportGroupInterface, ImportPersonInterface, ImportDonationBatchInterface, ImportDonationInterface, ImportFundInterface, ImportDataInterface } from "../../helpers/ImportHelper";
+import { ImportGroupInterface, ImportPersonInterface, ImportDonationBatchInterface, ImportDonationInterface, ImportFundInterface, ImportDataInterface } from "../helpers/ImportHelper";
 
 interface Props { importData: ImportDataInterface, triggerRender: number }
 
@@ -62,7 +62,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
             let filteredGroupServiceTimes = ImportHelper.getGroupServiceTimes(props.importData.groupServiceTimes, time.importKey);
             for (let l = 0; l < filteredGroupServiceTimes.length; l++) {
               let group = props.importData.groups.find(group => group.id === filteredGroupServiceTimes[l].groupId);
-              if(group){
+              if (group) {
                 rows.push(<tr key={group.name + Math.random()}><td>{campus.name}</td><td>{service.name}</td><td>{time.name}</td><td>{group.categoryName}</td><td>{group.name}</td><td>{getMemberCount(group.importKey)}</td></tr>);
               }
             }
@@ -149,4 +149,3 @@ export const ImportPreview: React.FC<Props> = (props) => {
     </Tabs>
   </>);
 }
-

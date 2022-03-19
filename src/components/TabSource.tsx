@@ -90,9 +90,10 @@ export const TabSource = (props: Props) => {
     <br></br>
     {(props.dataImportSource && inputIsFile && props.importData == null) && (
       <>
-        <label className="mx-3">Please select your {dataSourceDropDown.find(s => s.value === props.dataImportSource).label} file </label>
+        <label>Please select your {dataSourceDropDown.find(s => s.value === props.dataImportSource).label} file &nbsp; </label>
         <input ref={inputRef} className="d-none" type="file" onChange={handleDisplayFileDetails} />
         <button onClick={handleSelectFile} className="btn btn-outline-primary">Upload</button>
+        {(props.dataImportSource === DataSourceType.CHUMS_ZIP) && (<><br />You can download sample files <a href="/sampleimport.zip">here</a>.</>)}
       </>
     )}
 
