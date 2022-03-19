@@ -1,4 +1,3 @@
-import { UploadHelper } from "../UploadHelper";
 import { ApiHelper } from "../../appBase/helpers/ApiHelper";
 import { ArrayHelper } from "../../appBase/helpers/ArrayHelper";
 import { PersonHelper } from "../PersonHelper";
@@ -28,15 +27,15 @@ let visitSessions: ImportVisitSessionInterface[] = [];
 let batches: ImportDonationBatchInterface[] = [];
 let funds: ImportFundInterface[] = [];
 let donations: ImportDonationInterface[] = [];
-let fundDonations:ImportFundDonationInterface[] = [];
+let fundDonations: ImportFundDonationInterface[] = [];
 let forms: ImportFormsInterface[] = [];
 let questions: ImportQuestionsInterface[] = [];
 let formSubmissions: ImportFormSubmissions[] = [];
-let answers:ImportAnswerInterface[] = [];
+let answers: ImportAnswerInterface[] = [];
 
 const getChumsData = async (): Promise<ImportDataInterface> => {
   await Promise.all([getPeople(), getCampusServiceTimes(), getGroups(), getGroupMembers(), getAttendance(), getDonations(), getForms(), getQuestions(), getFormSubmissions(), getAnswers()]).catch(error => {
-    if(error.message.includes("Unauthorized"))alert("Please log in to access Chums data")
+    if (error.message.includes("Unauthorized")) alert("Please log in to access Chums data")
   });
 
   return {
@@ -89,8 +88,8 @@ const getPeople = async () => {
   people.forEach((p) => {
     p.importKey = p.id
     p.photo = PersonHelper.getPhotoUrl(p);
-    p.householdKey =p.householdId
-    if(households.find(h => h.importKey === p.householdId) === undefined) households.push({importKey: p.householdId, name: p.name.last})
+    p.householdKey = p.householdId
+    if (households.find(h => h.importKey === p.householdId) === undefined) households.push({ importKey: p.householdId, name: p.name.last })
   });
 }
 
@@ -146,9 +145,9 @@ const getDonations = async () => {
   await Promise.all(promises);
   donations.forEach((d) => {
     let person = people.find(p => p.id === d.personId)
-    if(person) d.person = person;
+    if (person) d.person = person;
     let fd = fundDonations.find(fd => fd.donationId === d.id)
-    if(fd) d.fund = funds.find(f => f.id === fd.fundId)
+    if (fd) d.fund = funds.find(f => f.id === fd.fundId)
     d.fundKey = d.fund?.id;
     d.importKey = d.id;
   });

@@ -7,10 +7,6 @@ interface Props { importData: ImportDataInterface, triggerRender: number }
 
 export const ImportPreview: React.FC<Props> = (props) => {
   let x: number;
-  let y: number;
-  let d: number;
-  let f: number;
-  let n: number;
 
   const getPeopleTable = () => {
     if (props.importData.households.length === 0) return null;
@@ -19,13 +15,9 @@ export const ImportPreview: React.FC<Props> = (props) => {
         let rows = [];
         for (let i = 0; i < props.importData.households.length; i++) {
           x = i;
-          let m = props.importData.households.length;
           rows.push(<tr key={x}><td colSpan={3}><i>{props.importData.households[i].name} Household</i></td></tr>);
           let members = ImportHelper.getHouseholdMembers(props.importData.households[i].importKey, props.importData.people);
           for (let j = 0; j < members.length; j++) {
-            let loop = i + 1;
-            let r = m + j + 1
-            y = r * loop;
             let p = members[j];
             let imgTag = (p.photo === undefined || p.photo === "") ? null : <img src={p.photo} className="personPhoto" alt="person" />;
             rows.push(<tr key={Math.random()}><td>{imgTag}</td><td>{p.name.first}</td><td>{p.name.last}</td></tr>);
@@ -88,7 +80,6 @@ export const ImportPreview: React.FC<Props> = (props) => {
     else {
       let rows = [];
       for (let i = 0; i < props.importData.sessions.length; i++) {
-        f = i + d + 1;;
         let session = props.importData.sessions[i];
         let group: ImportGroupInterface = ImportHelper.getByImportKey(props.importData.groups, session.groupKey);
         let vs = ImportHelper.getVisitSessions(props.importData.visitSessions, session.importKey);

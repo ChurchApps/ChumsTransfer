@@ -40,7 +40,6 @@ export const ControlPanel = () => {
   );
 };
 
-
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
   const location = useLocation()
   if (!ApiHelper.isAuthenticated) {
