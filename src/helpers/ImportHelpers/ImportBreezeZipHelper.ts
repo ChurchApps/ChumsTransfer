@@ -10,6 +10,7 @@ import {
 } from "../ImportHelper";
 import JSZip from "jszip";
 import { ContactInfoInterface, NameInterface } from "..";
+import { GroupMemberInterface } from "../Interfaces";
 
 let people: ImportPersonInterface[] = [];
 let households: ImportHouseholdInterface[] = [];
@@ -35,15 +36,14 @@ const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
   const zip = await JSZip.loadAsync(file);
   const fileNames = Object.keys(zip.files);
   const peopleFile = fileNames.find(name => name.match("people"))
-  //const tagsFile = fileNames.find(name => name.match("tags"))
+  const tagsFile = fileNames.find(name => name.match("tags"))
   //const notesFile = fileNames.find(name => name.match("notes"))
   const givingFile = fileNames.find(name => name.match("giving"))
-  const eventsFile = fileNames.find(name => name.match("events"))
+  //const eventsFile = fileNames.find(name => name.match("events"))
 
   loadPeople(UploadHelper.readXlsx(await zip.file(peopleFile).async("arraybuffer")));
-  //loadTags(UploadHelper.readXlsx(await zip.file(tagsFile).async("arraybuffer")));
   //loadNotes(UploadHelper.readXlsx(await zip.file(notesFile).async("arraybuffer")));
-  loadEvents(UploadHelper.readXlsx(await zip.file(eventsFile).async("arraybuffer")));
+  loadGroups(UploadHelper.readXlsx(await zip.file(tagsFile).async("arraybuffer")));
   loadDonations(UploadHelper.readXlsx(await zip.file(givingFile).async("arraybuffer")));
 
   return {
@@ -70,25 +70,26 @@ const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
 
 }
 
-const loadEvents = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].Name !== undefined) {
-    let group = getOrCreateGroup(groups, data[i]);
-    if (group !== null && group.serviceTimeKey) {
-      let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-      groupServiceTimes.push(gst);
-    }
-  }
+const loadGroups = (data: any) => {
+  const xlsGroups = Object.keys(data)
+  xlsGroups.forEach((groupName, i) => {
+    getOrCreateGroup(groups, { importKey: i.toString(), serviceTimeKey: null, startDate: null, endDate: null, name: groupName } as ImportGroupInterface);
+    let members = data[groupName];
+    members.forEach((member: any) => {
+      let groupMember = { groupKey: i.toString(), personKey: member["Person ID"], groupId: i.toString(), personId: member["Person ID"] } as ImportGroupMemberInterface;
+      groupMembers.push(groupMember)
+    })
+  })
   return groups;
 }
 
-const getOrCreateGroup = (groups: ImportGroupInterface[], data: any) => {
-  let result = groups.find(g => g.importKey === data["Event ID"]);
+const getOrCreateGroup = (groups: ImportGroupInterface[], data: ImportGroupInterface) => {
+  let result = groups.find(g => g.importKey === data.importKey);
   if (!result) {
     result = data as ImportGroupInterface;
-    result.name = data["Name"]
-    result.trackAttendance = (data.trackAttendance === "TRUE");
-    result.parentPickup = (data.parentPickup === "TRUE");
-    if (result.importKey === "" || result.importKey === undefined || result.importKey === null) result.importKey = data["Event ID"];
+    result.trackAttendance = false;
+    result.parentPickup = false;
+    if (result.importKey === "" || result.importKey === undefined || result.importKey === null) result.importKey = data.importKey;
     result.id = data.importKey;
     groups.push(result);
   }
@@ -96,15 +97,17 @@ const getOrCreateGroup = (groups: ImportGroupInterface[], data: any) => {
 }
 
 const loadDonations = (data: any) => {
-  for (let i = 0; i < data.length; i++) if (data[i].Amount !== undefined) {
-    let d = data[i];
-    let batch = ImportHelper.getOrCreateBatch(batches, d.Batch, new Date(d.date));
-    let fund = ImportHelper.getOrCreateFund(funds, d["Fund(s)"]);
-    let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d["Person ID"], personId: d["Person ID"], donationDate: new Date(d.Date), amount: Number.parseFloat(d.Amount), method: d["Method ID"], notes: d.Note ?? "", fund: fund, fundKey: fund.importKey } as ImportDonationInterface;
-    donation.person = people.find(p => p.importKey === donation.personKey)
-    let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.Amount) } as ImportFundDonationInterface;
-    donations.push(donation);
-    fundDonations.push(fundDonation);
+  for (let i = 0; i < data["Total Contributions"].length; i++){
+    let d = data["Total Contributions"][i];
+    if (d.Amount !== undefined) {
+      let batch = ImportHelper.getOrCreateBatch(batches, d.Batch, new Date(d.date));
+      let fund = ImportHelper.getOrCreateFund(funds, d["Fund(s)"]);
+      let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d["Person ID"], personId: d["Person ID"], donationDate: new Date(d.Date), amount: Number.parseFloat(d.Amount), method: d["Method ID"], notes: d.Note ?? "", fund: fund, fundKey: fund.importKey } as ImportDonationInterface;
+      donation.person = people.find(p => p.importKey === donation.personKey)
+      let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.Amount) } as ImportFundDonationInterface;
+      donations.push(donation);
+      fundDonations.push(fundDonation);
+    }
   }
 }
 
@@ -117,25 +120,28 @@ const assignHousehold = (households: ImportHouseholdInterface[], person: ImportP
 }
 
 const loadPeople = (data: any) => {
-  for (let i = 0; i < data.length; i++) {
-    if (data[i]["Last Name"] !== undefined) {
-      const p = {
-        importKey: data[i]["Breeze ID"] ?? "",
-        name: { first: data[i]["First Name"] ?? "", middle: data[i]["Middle Name"] ?? "", last: data[i]["Last Name"] ?? "", nick: data[i]["Nickname"] ?? "", display: `${data[i]["First Name"] ?? ""} ${data[i]["Last Name"] ?? ""}` } as NameInterface,
-        contactInfo: { address1: data[i]["Street Address"] ?? "", address2: "", city: data[i]["City"] ?? "", state: data[i]["State"] ?? "", zip: data[i]["Zip"] ?? "", homePhone: data[i]["Home"] ?? "", mobilePhone: data[i]["Mobile"] ?? "", workPhone: data[i]["Work"] ?? "", email: data[i]["Email"] ?? "" } as ContactInfoInterface,
-        membershipStatus: data[i]["Status"] ?? "",
-        gender: data[i]["Gender"] ?? "",
-        birthDate: data[i]["Birthdate"] ?? "",
-        maritalStatus: data[i]["Marital Status"] ?? "",
-        householdId: data[i]["Family"] ?? "",
-        householdRole: data[i]["Family Role"] ?? "",
-        userId: data[i]["Breeze ID"] ?? ""
-      } as ImportPersonInterface;
+  const xlssheets = Object.keys(data)
+  xlssheets.forEach(sheet => {
+    for (let i = 0; i < data[sheet].length; i++) {
+      if (data[sheet][i]["Last Name"] !== undefined) {
+        const p = {
+          importKey: data[sheet][i]["Breeze ID"] ?? "",
+          name: { first: data[sheet][i]["First Name"] ?? "", middle: data[sheet][i]["Middle Name"] ?? "", last: data[sheet][i]["Last Name"] ?? "", nick: data[sheet][i]["Nickname"] ?? "", display: `${data[sheet][i]["First Name"] ?? ""} ${data[sheet][i]["Last Name"] ?? ""}` } as NameInterface,
+          contactInfo: { address1: data[sheet][i]["Street Address"] ?? "", address2: "", city: data[sheet][i]["City"] ?? "", state: data[sheet][i]["State"] ?? "", zip: data[sheet][i]["Zip"] ?? "", homePhone: data[sheet][i]["Home"] ?? "", mobilePhone: data[sheet][i]["Mobile"] ?? "", workPhone: data[sheet][i]["Work"] ?? "", email: data[sheet][i]["Email"] ?? "" } as ContactInfoInterface,
+          membershipStatus: data[sheet][i]["Status"] ?? "",
+          gender: data[sheet][i]["Gender"] ?? "",
+          birthDate: data[sheet][i]["Birthdate"] ?? "",
+          maritalStatus: data[sheet][i]["Marital Status"] ?? "",
+          householdId: data[sheet][i]["Family"] ?? "",
+          householdRole: data[sheet][i]["Family Role"] ?? "",
+          userId: data[sheet][i]["Breeze ID"] ?? ""
+        } as ImportPersonInterface;
 
-      assignHousehold(households, p);
-      people.push(p);
+        assignHousehold(households, p);
+        people.push(p);
+      }
     }
-  }
+  })
   return people;
 }
 

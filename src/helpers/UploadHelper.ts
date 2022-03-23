@@ -87,8 +87,11 @@ export class UploadHelper {
   static readXlsx(arrayBuffer: ArrayBuffer) {
     let workbook = XLSX.read(arrayBuffer);
     let worksheets = Object.values(workbook.Sheets)
-    const sheet = worksheets[0];
-    const data = XLSX.utils.sheet_to_json(sheet, {header: 0});
+    let data: any = {};
+    let sheetNames = workbook.SheetNames;
+    worksheets.forEach((sheet, i) => {
+      data[sheetNames[i]] = XLSX.utils.sheet_to_json(sheet, {header: 0});
+    })
     return data;
   }
 
