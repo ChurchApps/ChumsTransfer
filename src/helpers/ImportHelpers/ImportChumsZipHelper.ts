@@ -24,11 +24,12 @@ let visitSessions: ImportVisitSessionInterface[] = [];
 let batches: ImportDonationBatchInterface[] = [];
 let funds: ImportFundInterface[] = [];
 let donations: ImportDonationInterface[] = [];
-let fundDonations:ImportFundDonationInterface[] = [];
+let fundDonations: ImportFundDonationInterface[] = [];
 let forms: ImportFormsInterface[] = [];
 let questions: ImportQuestionsInterface[] = [];
 let formSubmissions: ImportFormSubmissions[] = [];
-let answers:ImportAnswerInterface[] = [];
+let answers: ImportAnswerInterface[] = [];
+
 
 const readChumsZip = async (file: File): Promise<ImportDataInterface> => {
   const zip = await JSZip.loadAsync(file);
@@ -100,7 +101,7 @@ const loadDonations = (data: any) => {
     let donation = { importKey: (donations.length + 1).toString(), batchKey: batch.importKey, personKey: d.personKey, personId: d.personKey, donationDate: new Date(d.date), amount: Number.parseFloat(d.amount), method: d.method, methodDetails: d.methodDetails, notes: d.notes, fund: fund, fundKey: fund.importKey } as ImportDonationInterface;
     let fundDonation = { donationKey: donation.importKey, fundKey: fund.importKey, amount: Number.parseFloat(d.amount) } as ImportFundDonationInterface;
     let donationPerson = people.find(p => p.importKey === donation.personKey);
-    if(donationPerson) donation.person = donationPerson;
+    if (donationPerson) donation.person = donationPerson;
     donations.push(donation);
     fundDonations.push(fundDonation);
   }
@@ -116,7 +117,7 @@ const loadAttendance = (data: any, tmpServiceTimes: ImportServiceTimeInterface[]
     let group = groups.find(group => group.importKey === data[i].groupKey);
     if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
       let gst = { groupKey: group.importKey, groupId: group.importKey, serviceTimeKey: group.serviceTimeKey } as ImportGroupServiceTimeInterface;
-      if(groupServiceTimes.find(gst => gst.groupKey === group.importKey && gst.serviceTimeKey === group.serviceTimeKey) === undefined) groupServiceTimes.push(gst);
+      if (groupServiceTimes.find(gst => gst.groupKey === group.importKey && gst.serviceTimeKey === group.serviceTimeKey) === undefined) groupServiceTimes.push(gst);
     }
   }
 }
@@ -150,7 +151,7 @@ const loadPeople = (data: any, zip: any) => {
     if (data[i].lastName !== undefined) {
       const p = data[i] as ImportPersonInterface;
       p.name = { first: data[i].firstName ?? "", last: data[i].lastName ?? "", middle: data[i].middleName ?? "", nick: data[i].nickName ?? "", display: data[i].displayName ?? "" }
-      p.contactInfo = { address1: data[i].address1 ?? "", address2: data[i].address2 ?? "", city: data[i].city ?? "", state: data[i].state ?? "", zip: data[i].zip ?? "", homePhone: data[i].homePhone ?? "", workPhone: data[i].workPhone ?? "", email: data[i].email ?? ""}
+      p.contactInfo = { address1: data[i].address1 ?? "", address2: data[i].address2 ?? "", city: data[i].city ?? "", state: data[i].state ?? "", zip: data[i].zip ?? "", homePhone: data[i].homePhone ?? "", workPhone: data[i].workPhone ?? "", email: data[i].email ?? "" }
       assignHousehold(households, data[i]);
       if (p.photo !== undefined) {
         zip?.file(p.photo)?.async("base64").then((data: any) => {
