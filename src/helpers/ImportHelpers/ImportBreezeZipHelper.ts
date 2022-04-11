@@ -10,7 +10,6 @@ import {
 } from "../ImportHelper";
 import JSZip from "jszip";
 import { ContactInfoInterface, NameInterface } from "..";
-import { GroupMemberInterface } from "../Interfaces";
 
 let people: ImportPersonInterface[] = [];
 let households: ImportHouseholdInterface[] = [];
@@ -26,11 +25,11 @@ let visitSessions: ImportVisitSessionInterface[] = [];
 let batches: ImportDonationBatchInterface[] = [];
 let funds: ImportFundInterface[] = [];
 let donations: ImportDonationInterface[] = [];
-let fundDonations:ImportFundDonationInterface[] = [];
+let fundDonations: ImportFundDonationInterface[] = [];
 let forms: ImportFormsInterface[] = [];
 let questions: ImportQuestionsInterface[] = [];
 let formSubmissions: ImportFormSubmissions[] = [];
-let answers:ImportAnswerInterface[] = [];
+let answers: ImportAnswerInterface[] = [];
 
 const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
   const zip = await JSZip.loadAsync(file);
@@ -97,7 +96,7 @@ const getOrCreateGroup = (groups: ImportGroupInterface[], data: ImportGroupInter
 }
 
 const loadDonations = (data: any) => {
-  for (let i = 0; i < data["Total Contributions"].length; i++){
+  for (let i = 0; i < data["Total Contributions"].length; i++) {
     let d = data["Total Contributions"][i];
     if (d.Amount !== undefined) {
       let batch = ImportHelper.getOrCreateBatch(batches, d.Batch, new Date(d.date));

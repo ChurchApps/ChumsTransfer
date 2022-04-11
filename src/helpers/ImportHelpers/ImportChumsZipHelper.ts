@@ -30,7 +30,6 @@ let questions: ImportQuestionsInterface[] = [];
 let formSubmissions: ImportFormSubmissions[] = [];
 let answers: ImportAnswerInterface[] = [];
 
-
 const readChumsZip = async (file: File): Promise<ImportDataInterface> => {
   const zip = await JSZip.loadAsync(file);
 
