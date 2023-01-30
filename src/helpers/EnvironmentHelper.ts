@@ -53,7 +53,7 @@ export class EnvironmentHelper {
     EnvironmentHelper.GivingApi = "https://givingapi.churchapps.org";
     EnvironmentHelper.MembershipApi = "https://membershipapi.churchapps.org";
     EnvironmentHelper.ContentRoot = "https://content.churchapps.org";
-    EnvironmentHelper.AccountsAppUrl = "https://accounts.churchapps.org";
+    EnvironmentHelper.AccountsAppUrl = "https://app.chums.org";
     EnvironmentHelper.ChurchAppsUrl = "https://churchapps.org";
     EnvironmentHelper.GoogleAnalyticsTag = "UA-164774603-4";
     EnvironmentHelper.AppUrl = "https://app.chums.org";
