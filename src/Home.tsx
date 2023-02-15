@@ -30,6 +30,8 @@ export const Home = () => {
     setStatus({})
   };
 
+  console.log("***Made it Home");
+
   return (
     <>
       <Header />

@@ -5,9 +5,6 @@ import { Header, UserHelper } from "./components";
 // import UserContext from "./UserContext";
 
 export const Authenticated: React.FC = () => {
-  //to force rerender on login
-  // var user = React.useContext(UserContext)?.userName;
-  // var church = React.useContext(UserContext)?.churchName;
 
   if (UserHelper.churchChanged) {
     UserHelper.churchChanged = false;

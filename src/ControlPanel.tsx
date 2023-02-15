@@ -21,8 +21,9 @@ export const ControlPanel = () => {
   }
   React.useEffect(() => { if (EnvironmentHelper.GoogleAnalyticsTag !== "") ReactGA.pageview(location.pathname + location.search); }, [location]);
 
-  let user = React.useContext(UserContext).userName; //to force rerender on login
-  if (user === null) return null;
+  let user = React.useContext(UserContext).user; //to force rerender on login
+  console.log(user===null);
+  //if (user === null) return null;
   return (
     <Routes>
       <Route path="/logout" element={<Logout />} />

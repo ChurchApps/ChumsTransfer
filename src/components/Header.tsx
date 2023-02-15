@@ -6,7 +6,7 @@ export const Header: React.FC = () => {
 
   const getHeaderLink = () => {
     if (!UserHelper.user) return <a href="/login" className="link">Login</a>
-    else return UserHelper.user.firstName + " " + UserHelper.user.lastName
+    else return UserHelper.user.firstName + " " + UserHelper.user.lastName;
   }
 
   return (<>
