@@ -1,13 +1,19 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Row, Col, Container } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { UserHelper } from "../appBase/helpers";
 
 export const Header: React.FC = () => {
+  const nevigate = useNavigate();
 
   const getHeaderLink = () => {
     if (!UserHelper.user) return <a href="/login" className="link">Login</a>
     else return UserHelper.user.firstName + " " + UserHelper.user.lastName;
   }
+
+  useEffect(() => {
+    !UserHelper.user && nevigate("/login") // eslint-disable-next-line
+  }, []);
 
   return (<>
     <div id="navbar" className="fixed-top">
