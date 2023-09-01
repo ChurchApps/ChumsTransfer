@@ -1,4 +1,4 @@
-export { ErrorMessages, ExportLink, DisplayBox, InputBox, PersonAdd, Loading } from "../appBase/components"
+export { ErrorMessages, ExportLink, DisplayBox, InputBox, PersonAdd, Loading } from "@churchapps/apphelper"
 export * from "../helpers"
 export { Header } from "./Header"
 export { ImportPreview } from "./ImportPreview"

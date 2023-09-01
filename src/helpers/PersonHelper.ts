@@ -1,4 +1,4 @@
-import { PersonHelper as BasePersonHelper } from "../appBase/helpers"
+import { PersonHelper as BasePersonHelper } from "@churchapps/apphelper"
 import { PersonInterface, EnvironmentHelper } from ".";
 
 export class PersonHelper extends BasePersonHelper {
