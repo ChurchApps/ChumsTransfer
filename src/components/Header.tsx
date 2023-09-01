@@ -1,6 +1,6 @@
 import React from "react"
 import { Row, Col, Container } from "react-bootstrap";
-import { UserHelper } from "../appBase/helpers";
+import { UserHelper } from "@churchapps/apphelper";
 
 export const Header: React.FC = () => {
 

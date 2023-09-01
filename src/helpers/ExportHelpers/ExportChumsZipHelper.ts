@@ -1,5 +1,5 @@
 import { UploadHelper, PersonInterface } from "..";
-import { ArrayHelper } from "../../appBase/helpers/ArrayHelper";
+import { ArrayHelper } from "@churchapps/apphelper";
 import {
   ImportHelper
   , ImportCampusInterface, ImportServiceInterface

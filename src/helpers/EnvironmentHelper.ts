@@ -1,4 +1,4 @@
-import { ApiHelper } from "../appBase/helpers/ApiHelper";
+import { ApiHelper } from "@churchapps/apphelper";
 
 export class EnvironmentHelper {
   private static AttendanceApi = "";

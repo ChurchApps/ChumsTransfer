@@ -1,1 +1,1 @@
-export * from "../appBase/interfaces";
+export * from "@churchapps/apphelper";

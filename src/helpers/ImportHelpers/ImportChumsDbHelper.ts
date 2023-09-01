@@ -1,5 +1,4 @@
-import { ApiHelper } from "../../appBase/helpers/ApiHelper";
-import { ArrayHelper } from "../../appBase/helpers/ArrayHelper";
+import { ApiHelper, ArrayHelper } from "@churchapps/apphelper";
 import { PersonHelper } from "../PersonHelper";
 
 import Papa from "papaparse";
