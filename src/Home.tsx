@@ -19,6 +19,8 @@ export const Home = () => {
   const [status, setStatus] = useState<any>({});
   const [activeTab, setActiveTab] = useState<string>("step1");
 
+  const [showFinalCount, setShowFinalCount] = useState<boolean>(false);
+
   const isLoadingSourceData = dataImportSource && !importData;
 
   const handleStartOver = () => {
@@ -28,6 +30,7 @@ export const Home = () => {
     setDataExportSource(null)
     setIsExporting(false)
     setStatus({})
+    setShowFinalCount(false);
   };
 
   console.log("***Made it Home");
@@ -49,7 +52,7 @@ export const Home = () => {
             <TabPreview importData={importData} isLoadingSourceData={isLoadingSourceData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} />
           </Tab>
           <Tab eventKey="step3" title="Step 3 - Destination" disabled={activeTab !== "step3"}>
-            <TabDestination importData={importData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} dataExportSource={dataExportSource} setDataExportSource={setDataExportSource} setIsExporting={setIsExporting} setStatus={setStatus} />
+            <TabDestination importData={importData} setActiveTab={setActiveTab} dataImportSource={dataImportSource} dataExportSource={dataExportSource} setDataExportSource={setDataExportSource} setIsExporting={setIsExporting} setStatus={setStatus} showFinalCount={showFinalCount} setShowFinalCount={setShowFinalCount} />
           </Tab>
           <Tab eventKey="step4" title="Step 4 - Run" disabled={activeTab !== "step4"}>
             <TabRun dataExportSource={dataExportSource} isExporting={isExporting} status={status} />
