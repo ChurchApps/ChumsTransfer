@@ -70,6 +70,8 @@ const readBreezeZip = async (file: File): Promise<ImportDataInterface> => {
 }
 
 const loadGroups = (data: any) => {
+  groups = [];
+  groupMembers = [];
   const xlsGroups = Object.keys(data)
   xlsGroups.forEach((groupName, i) => {
     getOrCreateGroup(groups, { importKey: i.toString(), serviceTimeKey: null, startDate: null, endDate: null, name: groupName } as ImportGroupInterface);
@@ -96,6 +98,10 @@ const getOrCreateGroup = (groups: ImportGroupInterface[], data: ImportGroupInter
 }
 
 const loadDonations = (data: any) => {
+  batches = [];
+  donations = [];
+  funds = [];
+  fundDonations = [];
   for (let i = 0; i < data["Total Contributions"].length; i++) {
     let d = data["Total Contributions"][i];
     if (d.Amount !== undefined) {
@@ -119,6 +125,8 @@ const assignHousehold = (households: ImportHouseholdInterface[], person: ImportP
 }
 
 const loadPeople = (data: any) => {
+  people = [];
+  households = [];
   const xlssheets = Object.keys(data)
   xlssheets.forEach(sheet => {
     for (let i = 0; i < data[sheet].length; i++) {

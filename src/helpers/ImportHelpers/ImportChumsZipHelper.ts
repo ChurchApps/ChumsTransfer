@@ -69,30 +69,38 @@ const readChumsZip = async (file: File): Promise<ImportDataInterface> => {
 }
 
 const loadAnswers = (data: any) => {
+  answers = [];
   for (let i = 0; i < data.length; i++) if (data[i].value !== undefined) {
     answers.push(data[i]);
   }
 }
 
 const loadFormSubmissions = (data: any) => {
+  formSubmissions = [];
   for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined) {
     formSubmissions.push(data[i]);
   }
 }
 
 const loadQuestions = (data: any) => {
+  questions = [];
   for (let i = 0; i < data.length; i++) if (data[i].title !== undefined) {
     questions.push(data[i]);
   }
 }
 
 const loadForms = (data: any) => {
+  forms = [];
   for (let i = 0; i < data.length; i++) if (data[i].name !== undefined) {
     forms.push(data[i]);
   }
 }
 
 const loadDonations = (data: any) => {
+  batches = [];
+  funds = [];
+  donations = [];
+  fundDonations = [];
   for (let i = 0; i < data.length; i++) if (data[i].amount !== undefined) {
     let d = data[i];
     let batch = ImportHelper.getOrCreateBatch(batches, d.batch, new Date(d.date));
@@ -107,6 +115,9 @@ const loadDonations = (data: any) => {
 }
 
 const loadAttendance = (data: any, tmpServiceTimes: ImportServiceTimeInterface[]) => {
+  sessions = [];
+  visits = [];
+  visitSessions = [];
   for (let i = 0; i < data.length; i++) if (data[i].personKey !== undefined && data[i].groupKey !== undefined) {
     let session = ImportHelper.getOrCreateSession(sessions, new Date(data[i].date), data[i].groupKey, data[i].serviceTimeKey);
     let visit = ImportHelper.getOrCreateVisit(visits, data[i], tmpServiceTimes);
@@ -122,6 +133,9 @@ const loadAttendance = (data: any, tmpServiceTimes: ImportServiceTimeInterface[]
 }
 
 const loadServiceTimes = (data: any) => {
+  campuses = [];
+  services = [];
+  serviceTimes = [];
   for (let i = 0; i < data.length; i++) if (data[i].time !== undefined) {
     let campus = ImportHelper.getOrCreateCampus(campuses, data[i].campus);
     let service = ImportHelper.getOrCreateService(services, data[i].service, campus);
@@ -131,6 +145,8 @@ const loadServiceTimes = (data: any) => {
 }
 
 const loadGroups = (data: any) => {
+  groups = [];
+  groupServiceTimes = [];
   for (let i = 0; i < data.length; i++) if (data[i].name !== undefined) {
     let group = ImportHelper.getOrCreateGroup(groups, data[i]);
     if (group !== null && group.serviceTimeKey !== undefined && group.serviceTimeKey !== null) {
@@ -142,10 +158,13 @@ const loadGroups = (data: any) => {
 }
 
 const loadGroupMembers = (data: any) => {
+  groupMembers = [];
   for (let i = 0; i < data.length; i++) if (data[i].groupKey !== undefined) groupMembers.push(data[i] as ImportGroupMemberInterface);
 }
 
 const loadPeople = (data: any, zip: any) => {
+  people = [];
+  households = [];
   for (let i = 0; i < data.length; i++) {
     if (data[i].lastName !== undefined) {
       const p = data[i] as ImportPersonInterface;
