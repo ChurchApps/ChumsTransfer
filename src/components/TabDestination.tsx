@@ -90,12 +90,12 @@ export const TabDestination = (props: Props) => {
     <br></br>
     <br></br>
     <div>
-      {props.showFinalCount && props.importData && chumsData &&
+      {props.showFinalCount && props.importData && chumsData && (
         <>
           <FinalCountPreview importData={props.importData} chumsData={chumsData} />
           <button className="btn btn-success float-right" onClick={() => handleExport(DataSourceType.CHUMS_DB)}>Confirm</button>
         </>
-      }
+      )}
     </div>
     <br></br>
     <br></br>
