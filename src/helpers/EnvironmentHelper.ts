@@ -16,9 +16,9 @@ export class EnvironmentHelper {
       default: EnvironmentHelper.initDev(); break;
     }
     ApiHelper.apiConfigs = [
-      { keyName: "AttendanceApi", url: EnvironmentHelper.AttendanceApi, jwt: "", permisssions: [] },
-      { keyName: "GivingApi", url: EnvironmentHelper.GivingApi, jwt: "", permisssions: [] },
-      { keyName: "MembershipApi", url: EnvironmentHelper.MembershipApi, jwt: "", permisssions: [] }
+      { keyName: "AttendanceApi", url: EnvironmentHelper.AttendanceApi, jwt: "", permissions: [] },
+      { keyName: "GivingApi", url: EnvironmentHelper.GivingApi, jwt: "", permissions: [] },
+      { keyName: "MembershipApi", url: EnvironmentHelper.MembershipApi, jwt: "", permissions: [] }
     ];
   }
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Dropdown, DropdownButton } from "react-bootstrap";
+import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Button } from "@mui/material";
 import { ImportDataInterface } from "../helpers/ImportHelper";
 import { DataSourceType } from "../types";
 import getChumsData from "../helpers/ImportHelpers/ImportChumsDbHelper"
@@ -10,7 +10,7 @@ import generatePlanningCenterZip from "../helpers/ExportHelpers/ExportPlanningCe
 import { FinalCountPreview } from "./FinalCountPreview";
 
 interface Props {
-  dataImportSource?: String;
+  dataImportSource?: string;
   importData: ImportDataInterface;
   setActiveTab: (tabName: string) => void;
   dataExportSource: string | null;
@@ -78,26 +78,44 @@ export const TabDestination = (props: Props) => {
     }
   };
 
-  return (<>
-    <h2>Step 3 - Choose Export Destination</h2>
-    <p>Choose export format</p>
-    <DropdownButton id="dropdown-export-types" title={props.dataExportSource ?? "Choose One"} onSelect={handleSelect}>
-      <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums Database</Dropdown.Item>
-      <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums Export Zip</Dropdown.Item>
-      <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze Export Zip</Dropdown.Item>
-      <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</Dropdown.Item>
-    </DropdownButton>
-    <br></br>
-    <br></br>
-    <div>
+  return (
+    <Box>
+      <Typography variant="h5" component="h2" gutterBottom>
+        Step 3 - Choose Export Destination
+      </Typography>
+      <Typography variant="body1" paragraph>
+        Choose export format
+      </Typography>
+      
+      <FormControl fullWidth sx={{ mb: 3, maxWidth: 300 }}>
+        <InputLabel id="export-destination-select-label">Export Destination</InputLabel>
+        <Select
+          labelId="export-destination-select-label"
+          value={props.dataExportSource || ''}
+          label="Export Destination"
+          onChange={(e) => handleSelect(e.target.value)}
+        >
+          <MenuItem value={DataSourceType.CHUMS_DB}>Chums Database</MenuItem>
+          <MenuItem value={DataSourceType.CHUMS_ZIP}>Chums Export Zip</MenuItem>
+          <MenuItem value={DataSourceType.BREEZE_ZIP}>Breeze Export Zip</MenuItem>
+          <MenuItem value={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</MenuItem>
+        </Select>
+      </FormControl>
+
       {props.showFinalCount && props.importData && chumsData && (
-        <>
+        <Box sx={{ mt: 3 }}>
           <FinalCountPreview importData={props.importData} chumsData={chumsData} />
-          <button className="btn btn-success float-right" onClick={() => handleExport(DataSourceType.CHUMS_DB)}>Confirm</button>
-        </>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button 
+              variant="contained" 
+              color="success" 
+              onClick={() => handleExport(DataSourceType.CHUMS_DB)}
+            >
+              Confirm
+            </Button>
+          </Box>
+        </Box>
       )}
-    </div>
-    <br></br>
-    <br></br>
-  </>)
+    </Box>
+  )
 }

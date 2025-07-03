@@ -4,7 +4,7 @@ import { useCookies } from "react-cookie";
 import { ApiHelper } from "./components";
 import UserContext from "./UserContext";
 import { LoginPage, ChurchInterface, UserInterface } from "@churchapps/apphelper";
-import ReactGA from "react-ga";
+import ReactGA from "react-ga4";
 import { EnvironmentHelper } from "./helpers";
 import { Box } from "@mui/material";
 

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react"
-import { Dropdown, DropdownButton } from "react-bootstrap";
+import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Button, Link } from "@mui/material";
 import { ImportDataInterface } from "../helpers/ImportHelper";
 import { DataSourceType } from "../types";
 import readChumsZip from "../helpers/ImportHelpers/ImportChumsZipHelper"
@@ -8,7 +8,7 @@ import readBreezeZip from "../helpers/ImportHelpers/ImportBreezeZipHelper"
 import readPlanningCenterZip from "../helpers/ImportHelpers/ImportPlanningCenterZipHelper"
 
 interface Props {
-  dataImportSource?: String;
+  dataImportSource?: string;
   importData: ImportDataInterface;
   isLoadingSourceData: boolean;
   setActiveTab: (tabName: string) => void
@@ -77,25 +77,48 @@ export const TabSource = (props: Props) => {
     }
   };
 
-  return (<>
-    <h2>Step 1 - Import Source</h2>
-    <p>Choose data source for import data</p>
-    <DropdownButton id="dropdown-import-types" title={props.dataImportSource ?? "Choose One"} onSelect={(e) => handleImportSelection(e)}>
-      <Dropdown.Item eventKey={DataSourceType.CHUMS_DB}>Chums Database</Dropdown.Item>
-      <Dropdown.Item eventKey={DataSourceType.CHUMS_ZIP}>Chums Import Zip</Dropdown.Item>
-      <Dropdown.Item eventKey={DataSourceType.BREEZE_ZIP}>Breeze Import Zip</Dropdown.Item>
-      <Dropdown.Item eventKey={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</Dropdown.Item>
-    </DropdownButton>
-    <br></br>
-    <br></br>
-    {(props.dataImportSource && inputIsFile && props.importData == null) && (
-      <>
-        <label>Please select your {dataSourceDropDown.find(s => s.value === props.dataImportSource).label} file &nbsp; </label>
-        <input ref={inputRef} className="d-none" type="file" onChange={handleDisplayFileDetails} />
-        <button onClick={handleSelectFile} className="btn btn-outline-primary">Upload</button>
-        {(props.dataImportSource === DataSourceType.CHUMS_ZIP) && (<><br />You can download sample files <a href="/sampleimport.zip">here</a>.</>)}
-      </>
-    )}
+  return (
+    <Box>
+      <Typography variant="h5" component="h2" gutterBottom>
+        Step 1 - Import Source
+      </Typography>
+      <Typography variant="body1" paragraph>
+        Choose data source for import data
+      </Typography>
+      
+      <FormControl fullWidth sx={{ mb: 3, maxWidth: 300 }}>
+        <InputLabel id="import-source-select-label">Data Source</InputLabel>
+        <Select
+          labelId="import-source-select-label"
+          value={props.dataImportSource || ''}
+          label="Data Source"
+          onChange={(e) => handleImportSelection(e.target.value)}
+        >
+          <MenuItem value={DataSourceType.CHUMS_DB}>Chums Database</MenuItem>
+          <MenuItem value={DataSourceType.CHUMS_ZIP}>Chums Import Zip</MenuItem>
+          <MenuItem value={DataSourceType.BREEZE_ZIP}>Breeze Import Zip</MenuItem>
+          <MenuItem value={DataSourceType.PLANNING_CENTER_ZIP}>Planning Center zip</MenuItem>
+        </Select>
+      </FormControl>
 
-  </>);
+      {(props.dataImportSource && inputIsFile && props.importData == null) && (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Please select your {dataSourceDropDown.find(s => s.value === props.dataImportSource)?.label} file
+          </Typography>
+          <input ref={inputRef} style={{ display: 'none' }} type="file" onChange={handleDisplayFileDetails} />
+          <Button onClick={handleSelectFile} variant="outlined" color="primary">
+            Upload
+          </Button>
+          {(props.dataImportSource === DataSourceType.CHUMS_ZIP) && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="body2">
+                You can download sample files <Link href="/sampleimport.zip">here</Link>.
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      )}
+    </Box>
+  );
 }

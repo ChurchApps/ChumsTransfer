@@ -1,5 +1,7 @@
 import React from "react"
 import { Windmill } from "react-activity";
+import { Box, Typography, List, ListItem, ListItemIcon, ListItemText, Card, CardContent, Alert } from "@mui/material";
+import { CheckCircle, RadioButtonUnchecked, Error, Loop } from "@mui/icons-material";
 import { DisplayBox } from ".";
 import { DataSourceType } from "../types";
 
@@ -12,42 +14,85 @@ interface Props {
 export const TabRun = (props: Props) => {
 
   const getProgress = (name: string) => {
+    const status = props.status[name];
+    
+    let icon;
+    let color: any = 'text.secondary';
+    
+    if (status === undefined) {
+      icon = <RadioButtonUnchecked sx={{ color: 'grey.400' }} />;
+    } else if (status === "error") {
+      icon = <Error sx={{ color: 'error.main' }} />;
+      color = 'error.main';
+    } else if (status === "running") {
+      icon = <Loop sx={{ color: 'primary.main', animation: 'spin 1s linear infinite' }} />;
+      color = 'primary.main';
+    } else if (status === "complete") {
+      icon = <CheckCircle sx={{ color: 'success.main' }} />;
+      color = 'success.main';
+    } else {
+      icon = <RadioButtonUnchecked sx={{ color: 'grey.400' }} />;
+    }
 
-    if (props.status[name] === undefined) return (<li className="pending" key={name}>{name}</li>);
-
-    if (props.status[name] === "error") return (<li className="error" key={name}>{name}</li>);
-
-    if (props.status[name] === "running") return (
-      <li key={name}>
-        <Windmill className="inline-child" color="#727981" size={14} speed={1} animating={true} style={{ marginRight: 10 }} />
-        <span className="inline-child">{name}</span>
-      </li>
+    return (
+      <ListItem key={name} dense>
+        <ListItemIcon sx={{ minWidth: 36 }}>
+          {icon}
+        </ListItemIcon>
+        <ListItemText 
+          primary={name} 
+          sx={{ 
+            color,
+            '& .MuiTypography-root': { 
+              fontWeight: status === 'running' ? 600 : 400 
+            }
+          }} 
+        />
+      </ListItem>
     );
-    else return (<li className={props.status[name]} key={name}>{name}</li>);
   }
 
   const getExportSteps = () => {
     if (!props.isExporting) return null;
-    else {
-      let steps = ["Campuses/Services/Times", "People", "Photos", "Groups", "Group Members", "Donations", "Attendance", "Forms", "Questions", "Answers", "Form Submissions", "Compressing"];
-      if (props.dataExportSource === DataSourceType.CHUMS_DB) steps = steps.filter(s => s !== "Compressing")
-      let stepsHtml: JSX.Element[] = [];
-      steps.forEach((s) => stepsHtml.push(getProgress(s)));
+    
+    let steps = ["Campuses/Services/Times", "People", "Photos", "Groups", "Group Members", "Donations", "Attendance", "Forms", "Questions", "Answers", "Form Submissions", "Compressing"];
+    if (props.dataExportSource === DataSourceType.CHUMS_DB) steps = steps.filter(s => s !== "Compressing")
+    let stepsHtml: React.ReactElement[] = [];
+    steps.forEach((s) => stepsHtml.push(getProgress(s)));
 
-      return (
-        <DisplayBox headerText="Export" headerIcon="fas fa-download">
-          Exporting content:
-          <ul className="statusList">{stepsHtml}</ul>
-          <p>This process may take some time.  It is important that you do not close your browser until it has finished.</p>
-        </DisplayBox>
-      );
-    }
+    return (
+      <Card sx={{ mt: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            Export Progress
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            Exporting content:
+          </Typography>
+          <List dense sx={{ bgcolor: 'background.paper' }}>
+            {stepsHtml}
+          </List>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            <strong>Please wait:</strong> This process may take some time. It is important that you do not close your browser until it has finished.
+          </Alert>
+        </CardContent>
+      </Card>
+    );
   }
 
-  return (<>
-    <h2>Step 4 - Export Progress</h2>
-    {props.dataExportSource && props.isExporting && (
-      <div>{getExportSteps()}</div>
-    )}
-  </>)
+  return (
+    <Box>
+      <Typography variant="h5" component="h2" gutterBottom color="text.primary">
+        Step 4 - Export Progress
+      </Typography>
+      
+      {!props.isExporting && (
+        <Alert severity="info">
+          Export will begin once you complete the previous steps and click "Confirm" in Step 3.
+        </Alert>
+      )}
+      
+      {props.dataExportSource && props.isExporting && getExportSteps()}
+    </Box>
+  )
 }
