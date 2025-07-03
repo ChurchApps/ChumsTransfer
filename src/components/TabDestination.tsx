@@ -80,7 +80,7 @@ export const TabDestination = (props: Props) => {
 
   return (
     <Box>
-      <Typography variant="h5" component="h2" gutterBottom>
+      <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, color: 'primary.main', mb: 3 }}>
         Step 3 - Choose Export Destination
       </Typography>
       <Typography variant="body1" paragraph>
@@ -110,6 +110,7 @@ export const TabDestination = (props: Props) => {
               variant="contained" 
               color="success" 
               onClick={() => handleExport(DataSourceType.CHUMS_DB)}
+              sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 600, px: 4 }}
             >
               Confirm
             </Button>

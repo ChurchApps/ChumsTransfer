@@ -1,6 +1,6 @@
 import React from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tabs, Tab, Alert, Box, Typography } from "@mui/material";
-import { DisplayBox, ImportHelper, DateHelper, CurrencyHelper } from ".";
+import { ImportHelper, DateHelper, CurrencyHelper } from ".";
 import { ImportGroupInterface, ImportPersonInterface, ImportDonationBatchInterface, ImportDonationInterface, ImportFundInterface, ImportDataInterface } from "../helpers/ImportHelper";
 
 interface Props { importData: ImportDataInterface, triggerRender: number }
@@ -10,7 +10,11 @@ export const ImportPreview: React.FC<Props> = (props) => {
   let x: number;
 
   const getPeopleTable = () => {
-    if (props.importData.households.length === 0) return null;
+    if (props.importData.households.length === 0) return (
+      <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
+        <Typography variant="body1">No people will be imported</Typography>
+      </Box>
+    );
     else {
       if (props.triggerRender > -1) {                       //This line is just to trigger re-render when a photo is downloaded
         let rows = [];
@@ -37,7 +41,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
           }
         }
         return (
-          <TableContainer sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'grey.300', borderRadius: 2 }}>
+          <TableContainer sx={{ bgcolor: 'background.paper' }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -61,7 +65,11 @@ export const ImportPreview: React.FC<Props> = (props) => {
   }
 
   const getGroupsTable = () => {
-    if (props.importData.groups.length === 0) return null;
+    if (props.importData.groups.length === 0) return (
+      <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
+        <Typography variant="body1">No groups will be imported</Typography>
+      </Box>
+    );
     else {
       let rows = [];
       for (let i = 0; i < props.importData.campuses.length; i++) {
@@ -109,7 +117,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
       }
 
       return (
-        <TableContainer sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'grey.300', borderRadius: 2 }}>
+        <TableContainer sx={{ bgcolor: 'background.paper' }}>
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -130,7 +138,11 @@ export const ImportPreview: React.FC<Props> = (props) => {
 
   const getAttendanceTable = () => {
 
-    if (props.importData.sessions.length === 0) return null;
+    if (props.importData.sessions.length === 0) return (
+      <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
+        <Typography variant="body1">No attendance records will be imported</Typography>
+      </Box>
+    );
     else {
       let rows = [];
       for (let i = 0; i < props.importData.sessions.length; i++) {
@@ -146,7 +158,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
         );
       }
       return (
-        <TableContainer sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'grey.300', borderRadius: 2 }}>
+        <TableContainer sx={{ bgcolor: 'background.paper' }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -163,7 +175,11 @@ export const ImportPreview: React.FC<Props> = (props) => {
   }
 
   const getDonationsTable = () => {
-    if (props.importData.donations.length === 0) return null;
+    if (props.importData.donations.length === 0) return (
+      <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
+        <Typography variant="body1">No donations will be imported</Typography>
+      </Box>
+    );
     else {
       let rows = [];
       for (let i = 0; i < props.importData.donations.length; i++) {
@@ -183,7 +199,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
         );
       }
       return (
-        <TableContainer sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'grey.300', borderRadius: 2 }}>
+        <TableContainer sx={{ bgcolor: 'background.paper' }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -202,7 +218,11 @@ export const ImportPreview: React.FC<Props> = (props) => {
   }
 
   const getFormsTable = () => {
-    if (props.importData.forms.length === 0) return null;
+    if (props.importData.forms.length === 0) return (
+      <Box sx={{ textAlign: 'center', py: 8, color: 'text.secondary' }}>
+        <Typography variant="body1">No forms will be imported</Typography>
+      </Box>
+    );
     else {
       let rows = [];
       for (let i = 0, totalForms = props.importData.forms.length; i < totalForms; i++) {
@@ -215,7 +235,7 @@ export const ImportPreview: React.FC<Props> = (props) => {
         )
       }
       return (
-        <TableContainer sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'grey.300', borderRadius: 2 }}>
+        <TableContainer sx={{ bgcolor: 'background.paper' }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -237,18 +257,11 @@ export const ImportPreview: React.FC<Props> = (props) => {
   );
   else return (
     <Box>
-      <Typography variant="h6" component="h3" gutterBottom color="text.primary" sx={{ mb: 3 }}>
-        Data Preview
-      </Typography>
-      
       {/* Tab Navigation */}
       <Box sx={{ 
         borderBottom: 1, 
         borderColor: 'divider',
-        mb: 3,
-        bgcolor: 'grey.50',
-        borderRadius: 1,
-        p: 1
+        mb: 2
       }}>
         <Tabs 
           value={activeTab} 
@@ -264,60 +277,12 @@ export const ImportPreview: React.FC<Props> = (props) => {
         </Tabs>
       </Box>
 
-      {/* Tab Content */}
-      <Box sx={{ 
-        minHeight: 300,
-        bgcolor: 'grey.100',
-        p: 3,
-        borderRadius: 2,
-        '& .MuiTableContainer-root': {
-          border: '1px solid',
-          borderColor: 'grey.300',
-          borderRadius: 2,
-          overflow: 'hidden'
-        }
-      }}>
-        {activeTab === 'people' && (
-          <Box>
-            <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 600, mb: 2 }}>
-              People & Households
-            </Typography>
-            {getPeopleTable()}
-          </Box>
-        )}
-        {activeTab === 'groups' && (
-          <Box>
-            <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 600, mb: 2 }}>
-              Groups & Memberships
-            </Typography>
-            {getGroupsTable()}
-          </Box>
-        )}
-        {activeTab === 'attendance' && (
-          <Box>
-            <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 600, mb: 2 }}>
-              Attendance Records
-            </Typography>
-            {getAttendanceTable()}
-          </Box>
-        )}
-        {activeTab === 'donations' && (
-          <Box>
-            <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 600, mb: 2 }}>
-              Donations & Gifts
-            </Typography>
-            {getDonationsTable()}
-          </Box>
-        )}
-        {activeTab === 'forms' && (
-          <Box>
-            <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 600, mb: 2 }}>
-              Forms & Submissions
-            </Typography>
-            {getFormsTable()}
-          </Box>
-        )}
-      </Box>
+      {/* Tab Content - Tables Only */}
+      {activeTab === 'people' && getPeopleTable()}
+      {activeTab === 'groups' && getGroupsTable()}
+      {activeTab === 'attendance' && getAttendanceTable()}
+      {activeTab === 'donations' && getDonationsTable()}
+      {activeTab === 'forms' && getFormsTable()}
     </Box>
   );
 }

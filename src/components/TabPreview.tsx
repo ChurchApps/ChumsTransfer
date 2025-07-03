@@ -1,8 +1,9 @@
 import React from "react"
 import { Dots } from "react-activity";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { ImportDataInterface } from "../helpers/ImportHelper";
 import { ImportPreview } from "../components";
+import { Loading } from "./ui";
 import { DataSourceType } from "../types";
 
 interface Props {
@@ -19,17 +20,12 @@ export const TabPreview = (props: Props) => {
 
   return (
     <Box>
-      <Typography variant="h5" component="h2" gutterBottom color="text.primary">
+      <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, color: 'primary.main', mb: 3 }}>
         Step 2 - Preview
       </Typography>
       
       {props.isLoadingSourceData && props.dataImportSource === DataSourceType.CHUMS_DB && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-          <CircularProgress />
-          <Typography variant="body1" sx={{ ml: 2, mt: 0.5 }}>
-            Loading data from ChuMS database...
-          </Typography>
-        </Box>
+        <Loading message="Loading data from CHUMS database..." />
       )}
       
       {getPreview()}
@@ -41,6 +37,12 @@ export const TabPreview = (props: Props) => {
             variant="contained" 
             color="primary"
             size="large"
+            sx={{ 
+              textTransform: 'none',
+              borderRadius: 2,
+              fontWeight: 600,
+              px: 4
+            }}
           >
             Continue to Destination
           </Button>

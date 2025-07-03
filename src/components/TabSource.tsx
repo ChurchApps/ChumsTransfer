@@ -79,7 +79,7 @@ export const TabSource = (props: Props) => {
 
   return (
     <Box>
-      <Typography variant="h5" component="h2" gutterBottom>
+      <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, color: 'primary.main', mb: 3 }}>
         Step 1 - Import Source
       </Typography>
       <Typography variant="body1" paragraph>
@@ -107,7 +107,7 @@ export const TabSource = (props: Props) => {
             Please select your {dataSourceDropDown.find(s => s.value === props.dataImportSource)?.label} file
           </Typography>
           <input ref={inputRef} style={{ display: 'none' }} type="file" onChange={handleDisplayFileDetails} />
-          <Button onClick={handleSelectFile} variant="outlined" color="primary">
+          <Button onClick={handleSelectFile} variant="outlined" color="primary" sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 600, px: 4 }}>
             Upload
           </Button>
           {(props.dataImportSource === DataSourceType.CHUMS_ZIP) && (

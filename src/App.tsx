@@ -48,22 +48,28 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Roboto, Arial, sans-serif',
     h4: {
-      fontWeight: 500,
+      fontWeight: 600,
       color: '#333333',
     },
     h5: {
-      fontWeight: 500,
+      fontWeight: 600,
       color: '#333333',
     },
     h6: {
-      fontWeight: 500,
-      color: '#333333',
+      fontWeight: 600,
+      color: '#1565C0', // Primary color for section headings
     },
     body1: {
       color: '#333333',
+      fontSize: '1rem',
     },
     body2: {
       color: '#666666',
+      fontSize: '0.875rem',
+    },
+    caption: {
+      color: 'rgba(0,0,0,0.6)',
+      fontSize: '0.75rem',
     },
   },
   components: {
@@ -86,7 +92,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          fontWeight: 500,
+          fontWeight: 600,
+          borderRadius: 8,
         },
         contained: {
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -129,10 +136,8 @@ const theme = createTheme({
           borderRadius: 8,
           backgroundColor: '#ffffff',
           border: '1px solid #e0e0e0',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          '&:hover': {
-            boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-          },
+          boxShadow: 'none',
+          transition: 'all 0.2s ease-in-out',
         },
       },
     },
@@ -149,8 +154,8 @@ const theme = createTheme({
     MuiTabs: {
       styleOverrides: {
         root: {
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid #e0e0e0',
+          backgroundColor: 'transparent',
+          minHeight: 48,
         },
         indicator: {
           backgroundColor: '#1565C0',
@@ -164,8 +169,10 @@ const theme = createTheme({
           textTransform: 'none',
           fontWeight: 500,
           color: '#666666',
+          fontSize: '0.875rem',
           '&.Mui-selected': {
             color: '#1565C0',
+            fontWeight: 600,
           },
           '&:hover': {
             color: '#1565C0',
@@ -186,20 +193,32 @@ const theme = createTheme({
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: '#f8f9fa',
+          backgroundColor: '#f5f5f5',
         },
       },
     },
     MuiTableCell: {
       styleOverrides: {
         head: {
-          backgroundColor: '#f8f9fa',
+          backgroundColor: '#f5f5f5',
           fontWeight: 600,
           color: '#333333',
           borderBottom: '2px solid #e0e0e0',
+          fontSize: '0.875rem',
         },
         body: {
           color: '#333333',
+          borderBottom: '1px solid #f0f0f0',
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: '#f5f5f5',
+          },
+          transition: 'background-color 0.2s ease',
         },
       },
     },

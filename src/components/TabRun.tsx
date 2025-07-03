@@ -82,7 +82,7 @@ export const TabRun = (props: Props) => {
 
   return (
     <Box>
-      <Typography variant="h5" component="h2" gutterBottom color="text.primary">
+      <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, color: 'primary.main', mb: 3 }}>
         Step 4 - Export Progress
       </Typography>
       
