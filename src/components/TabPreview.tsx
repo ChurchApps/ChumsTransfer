@@ -28,7 +28,20 @@ export const TabPreview = (props: Props) => {
         <Loading message="Loading data from CHUMS database..." />
       )}
 
-      {getPreview()}
+      {props.importData && (
+        <Box
+          sx={{
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            mb: 3,
+            border: 1,
+            borderColor: 'divider',
+            borderRadius: 1
+          }}
+        >
+          {getPreview()}
+        </Box>
+      )}
 
       {props.importData && (
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>

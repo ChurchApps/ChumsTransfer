@@ -1,7 +1,8 @@
 import React, { useState } from "react"
-import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Button } from "@mui/material";
+import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Button, Alert } from "@mui/material";
 import { ImportDataInterface } from "../helpers/ImportHelper";
 import { DataSourceType } from "../types";
+import { ApiHelper } from "@churchapps/apphelper";
 import getChumsData from "../helpers/ImportHelpers/ImportChumsDbHelper"
 import generateBreezeZip from "../helpers/ExportHelpers/ExportBreezeZipHelper"
 import generateChumsZip from "../helpers/ExportHelpers/ExportChumsZipHelper"
@@ -23,6 +24,7 @@ interface Props {
 
 export const TabDestination = (props: Props) => {
   const [chumsData, setChumsData] = useState<ImportDataInterface>();
+  const [loginError, setLoginError] = useState<boolean>(false);
   let progress: any = {};
 
   const setProgress = (name: string, status: string) => {
@@ -36,6 +38,11 @@ export const TabDestination = (props: Props) => {
   }
 
   const handleSelect = (e: string) => {
+    setLoginError(false);
+    if (e === DataSourceType.CHUMS_DB && !ApiHelper.isAuthenticated) {
+      setLoginError(true);
+      return;
+    }
     if (e === DataSourceType.CHUMS_DB) {
       props.setDataExportSource(e);
       getChumsDBData();
@@ -87,6 +94,12 @@ export const TabDestination = (props: Props) => {
         Choose export format
       </Typography>
 
+      {loginError && (
+        <Alert severity="error" sx={{ mb: 2, maxWidth: 500 }}>
+          You must be logged in to use Chums Database as a destination. Please log in first.
+        </Alert>
+      )}
+
       <FormControl fullWidth sx={{ mb: 3, maxWidth: 300 }}>
         <InputLabel id="export-destination-select-label">Export Destination</InputLabel>
         <Select
@@ -112,7 +125,7 @@ export const TabDestination = (props: Props) => {
               onClick={() => handleExport(DataSourceType.CHUMS_DB)}
               sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 600, px: 4 }}
             >
-              Confirm
+              Start Transfer
             </Button>
           </Box>
         </Box>

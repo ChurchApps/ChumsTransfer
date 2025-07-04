@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react"
-import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Button, Link } from "@mui/material";
+import { Select, MenuItem, FormControl, InputLabel, Box, Typography, Button, Link, Alert } from "@mui/material";
 import { ImportDataInterface } from "../helpers/ImportHelper";
 import { DataSourceType } from "../types";
+import { ApiHelper } from "@churchapps/apphelper";
 import readChumsZip from "../helpers/ImportHelpers/ImportChumsZipHelper"
 import getChumsData from "../helpers/ImportHelpers/ImportChumsDbHelper"
 import readBreezeZip from "../helpers/ImportHelpers/ImportBreezeZipHelper"
@@ -20,6 +21,7 @@ export const TabSource = (props: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputIsFile = props.dataImportSource !== DataSourceType.CHUMS_DB;
   const [, setUploadedFileName] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<boolean>(false);
 
   const dataSourceDropDown = [
     { label: "Chums DB", value: DataSourceType.CHUMS_DB },
@@ -70,6 +72,11 @@ export const TabSource = (props: Props) => {
   };
 
   const handleImportSelection = (e: string) => {
+    setLoginError(false);
+    if (e === DataSourceType.CHUMS_DB && !ApiHelper.isAuthenticated) {
+      setLoginError(true);
+      return;
+    }
     props.setDataImportSource(e)
     if (e === DataSourceType.CHUMS_DB) {
       props.setActiveTab("step2")
@@ -85,6 +92,12 @@ export const TabSource = (props: Props) => {
       <Typography variant="body1" paragraph>
         Choose data source for import data
       </Typography>
+
+      {loginError && (
+        <Alert severity="error" sx={{ mb: 2, maxWidth: 500 }}>
+          You must be logged in to use Chums Database as a source. Please log in first.
+        </Alert>
+      )}
 
       <FormControl fullWidth sx={{ mb: 3, maxWidth: 300 }}>
         <InputLabel id="import-source-select-label">Data Source</InputLabel>

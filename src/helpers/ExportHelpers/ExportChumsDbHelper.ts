@@ -115,9 +115,11 @@ const exportPeople = async (exportData: ImportDataInterface, runImport: (keyName
         if (isComplete) {
           updateProgress("People", "complete");
         } else {
-          updateProgress("People", `running (batch ${current}/${total})`);
+          updateProgress("People", "running");
         }
       });
+    } else {
+      updateProgress("People", "complete");
     }
   }, true);
 
@@ -159,9 +161,11 @@ const exportGroups = async (exportData: ImportDataInterface, tmpPeople: ImportPe
         if (isComplete) {
           updateProgress("Group Members", "complete");
         } else {
-          updateProgress("Group Members", `running (batch ${current}/${total})`);
+          updateProgress("Group Members", "running");
         }
       });
+    } else {
+      updateProgress("Group Members", "complete");
     }
   }, true);
 
@@ -248,11 +252,13 @@ const exportDonations = async (exportData: ImportDataInterface, tmpPeople: Impor
 
       await postInBatches("/donations", tmpDonations, "GivingApi", (current, total, isComplete) => {
         if (isComplete) {
-          updateProgress("Donations", "complete");
+          updateProgress("Donations", "running");
         } else {
-          updateProgress("Donations", `running (batch ${current}/${total})`);
+          updateProgress("Donations", "running");
         }
       });
+    } else {
+      updateProgress("Donations", "running");
     }
   }, true);
 
@@ -263,9 +269,17 @@ const exportDonations = async (exportData: ImportDataInterface, tmpPeople: Impor
         fd.donationId = ImportHelper.getByImportKey(tmpDonations, fd.donationKey).id;
         fd.fundId = ImportHelper.getByImportKey(tmpFunds, fd.fundKey).id;
       });
-      await postInBatches("/funddonations", tmpFundDonations, "GivingApi");
+      await postInBatches("/funddonations", tmpFundDonations, "GivingApi", (current, total, isComplete) => {
+        if (isComplete) {
+          updateProgress("Donations", "complete");
+        } else {
+          updateProgress("Donation Funds", "running");
+        }
+      });
+    } else {
+      updateProgress("Donations", "complete");
     }
-  });
+  }, true);
 }
 
 const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], tmpGroups: ImportGroupInterface[], tmpServices: ImportServiceInterface[], tmpServiceTimes: ImportServiceTimeInterface[], runImport: (keyName: string, code: () => void, skipComplete?: boolean) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
@@ -291,15 +305,19 @@ const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: Impo
       });
       await postInBatches("/visits", tmpVisits, "AttendanceApi", (current, total, isComplete) => {
         if (isComplete) {
-          updateProgress("Attendance", "running - processing visit sessions");
+          if (exportData.visitSessions.length > 0) {
+            updateProgress("Attendance", "running");
+          } else {
+            updateProgress("Attendance", "complete");
+          }
         } else {
-          updateProgress("Attendance", `running - visits (batch ${current}/${total})`);
+          updateProgress("Attendance", "running");
         }
       });
     }
 
     let tmpVisitSessions: ImportVisitSessionInterface[] = [...exportData.visitSessions];
-    if (tmpVisitSessions.length > 0) {
+    if (tmpVisitSessions.length > 0 && tmpVisits.length > 0) {
       tmpVisitSessions.forEach((vs) => {
         vs.visitId = ImportHelper.getByImportKey(tmpVisits, vs.visitKey).id;
         vs.sessionId = ImportHelper.getByImportKey(tmpSessions, vs.sessionKey).id;
@@ -308,9 +326,11 @@ const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: Impo
         if (isComplete) {
           updateProgress("Attendance", "complete");
         } else {
-          updateProgress("Attendance", `running - visit sessions (batch ${current}/${total})`);
+          updateProgress("Attendance", "running");
         }
       });
+    } else if (tmpVisits.length === 0 && tmpSessions.length === 0) {
+      updateProgress("Attendance", "complete");
     }
   }, true);
 }

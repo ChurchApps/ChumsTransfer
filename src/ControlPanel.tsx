@@ -53,4 +53,3 @@ const RequireAuth = ({ children }: { children: React.ReactElement }) => {
 
   return children
 }
-

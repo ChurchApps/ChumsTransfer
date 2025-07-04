@@ -29,3 +29,4 @@ export const IconText: React.FC<IconTextProps> = ({
     </Typography>
   </Stack>
 );
+

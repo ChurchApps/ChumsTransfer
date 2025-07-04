@@ -94,85 +94,87 @@ export const Header: React.FC = () => {
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {!UserHelper.user ? (
-              <Link href="/login" sx={{ color: '#FFF', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
-                Login
-              </Link>
-            ) : (
-              <>
-                <IconButton
-                  onClick={handleAvatarClick}
-                  size="small"
-                  sx={{ ml: 2 }}
-                  aria-controls={open ? 'account-menu' : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={open ? 'true' : undefined}
-                >
-                  <Avatar
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      bgcolor: 'var(--c1d2)',
-                      color: '#FFF',
-                      fontSize: '0.875rem'
-                    }}
+            {!UserHelper.user
+              ? (
+                <Link href="/login" sx={{ color: '#FFF', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                  Login
+                </Link>
+              )
+              : (
+                <>
+                  <IconButton
+                    onClick={handleAvatarClick}
+                    size="small"
+                    sx={{ ml: 2 }}
+                    aria-controls={open ? 'account-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
                   >
-                    {getAvatarInitials()}
-                  </Avatar>
-                </IconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  id="account-menu"
-                  open={open}
-                  onClose={handleClose}
-                  onClick={handleClose}
-                  PaperProps={{
-                    elevation: 0,
-                    sx: {
-                      overflow: 'visible',
-                      filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                      mt: 1.5,
-                      '& .MuiAvatar-root': {
+                    <Avatar
+                      sx={{
                         width: 32,
                         height: 32,
-                        ml: -0.5,
-                        mr: 1,
+                        bgcolor: 'var(--c1d2)',
+                        color: '#FFF',
+                        fontSize: '0.875rem'
+                      }}
+                    >
+                      {getAvatarInitials()}
+                    </Avatar>
+                  </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    id="account-menu"
+                    open={open}
+                    onClose={handleClose}
+                    onClick={handleClose}
+                    PaperProps={{
+                      elevation: 0,
+                      sx: {
+                        overflow: 'visible',
+                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                        mt: 1.5,
+                        '& .MuiAvatar-root': {
+                          width: 32,
+                          height: 32,
+                          ml: -0.5,
+                          mr: 1,
+                        },
+                        '&::before': {
+                          content: '""',
+                          display: 'block',
+                          position: 'absolute',
+                          top: 0,
+                          right: 14,
+                          width: 10,
+                          height: 10,
+                          bgcolor: 'background.paper',
+                          transform: 'translateY(-50%) rotate(45deg)',
+                          zIndex: 0,
+                        },
                       },
-                      '&::before': {
-                        content: '""',
-                        display: 'block',
-                        position: 'absolute',
-                        top: 0,
-                        right: 14,
-                        width: 10,
-                        height: 10,
-                        bgcolor: 'background.paper',
-                        transform: 'translateY(-50%) rotate(45deg)',
-                        zIndex: 0,
-                      },
-                    },
-                  }}
-                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                >
-                  <MenuItem sx={{ cursor: 'default' }}>
-                    <Avatar sx={{ bgcolor: 'var(--c1)' }}>{getAvatarInitials()}</Avatar>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {getUserDisplayName()}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleLogout}>
-                    <ListItemIcon>
-                      <LogoutOutlined fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Logout</ListItemText>
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
+                    }}
+                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                  >
+                    <MenuItem sx={{ cursor: 'default' }}>
+                      <Avatar sx={{ bgcolor: 'var(--c1)' }}>{getAvatarInitials()}</Avatar>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {getUserDisplayName()}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={handleLogout}>
+                      <ListItemIcon>
+                        <LogoutOutlined fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Logout</ListItemText>
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
           </Box>
         </Toolbar>
       </AppBar>

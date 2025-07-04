@@ -24,7 +24,7 @@ export const TabRun = (props: Props) => {
     } else if (status === "error") {
       icon = <Error sx={{ color: 'error.main' }} />;
       color = 'error.main';
-    } else if (status === "running") {
+    } else if (status.includes("running")) {
       icon = <Loop sx={{ color: 'primary.main', animation: 'spin 1s linear infinite' }} />;
       color = 'primary.main';
     } else if (status === "complete") {
