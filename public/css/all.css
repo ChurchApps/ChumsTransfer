@@ -17,6 +17,10 @@
   --c1d7: #010A2D;
 }
 
+img {
+  max-width: 100%;
+}
+
 /* Legacy image styling for person photos */
 .personPhoto {
   width: 60px;

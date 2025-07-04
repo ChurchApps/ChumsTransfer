@@ -5,6 +5,7 @@ import { CssBaseline } from "@mui/material";
 import { ControlPanel } from "./ControlPanel";
 import { UserProvider } from "./UserContext";
 import { CookiesProvider } from "react-cookie";
+import "@churchapps/apphelper/dist/components/markdownEditor/editor.css";
 
 const theme = createTheme({
   palette: {
@@ -231,6 +232,30 @@ const theme = createTheme({
           backgroundColor: '#e3f2fd',
           color: '#0d47a1',
           border: '1px solid #90caf9',
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 8,
+          padding: '16px',
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: '16px 24px 8px',
+          fontWeight: 600,
+          color: '#333333',
+        },
+      },
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          padding: '8px 24px 16px',
         },
       },
     },

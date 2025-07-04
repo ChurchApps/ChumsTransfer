@@ -15,7 +15,7 @@ const postInBatches = async <T extends { id?: string }>(
   endpoint: string,
   data: T[],
   apiName: any,
-  progressCallback?: (current: number, total: number) => void
+  progressCallback?: (current: number, total: number, isComplete: boolean) => void
 ): Promise<T[]> => {
   const results: T[] = [];
   const totalBatches = Math.ceil(data.length / BATCH_SIZE);
@@ -23,9 +23,10 @@ const postInBatches = async <T extends { id?: string }>(
   for (let i = 0; i < data.length; i += BATCH_SIZE) {
     const currentBatch = Math.floor(i / BATCH_SIZE) + 1;
     const batch = data.slice(i, i + BATCH_SIZE);
+    const isLastBatch = currentBatch === totalBatches;
 
     if (progressCallback && totalBatches > 1) {
-      progressCallback(currentBatch, totalBatches);
+      progressCallback(currentBatch, totalBatches, isLastBatch);
     }
 
     const batchResults = await ApiHelper.post(endpoint, batch, apiName);
@@ -44,12 +45,14 @@ const exportToChumsDb = async (exportData: ImportDataInterface, updateProgress: 
 
   const sleep = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))
 
-  const runImport = async (keyName: string, code: () => void) => {
+  const runImport = async (keyName: string, code: () => void, skipComplete = false) => {
     updateProgress(keyName, "running");
     try {
       await sleep(100);
       await code();
-      updateProgress(keyName, "complete");
+      if (!skipComplete) {
+        updateProgress(keyName, "complete");
+      }
     } catch (e) {
       if (e instanceof Error && e.message.includes("Unauthorized")) alert("Please log in to access Chums data")
       updateProgress(keyName, "error");
@@ -65,7 +68,7 @@ const exportToChumsDb = async (exportData: ImportDataInterface, updateProgress: 
   await exportForms(exportData, tmpPeople, runImport);
 }
 
-const exportCampuses = async (exportData: ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>) => {
+const exportCampuses = async (exportData: ImportDataInterface, runImport: (keyName: string, code: () => void, skipComplete?: boolean) => Promise<void>) => {
   let tmpCampuses: ImportCampusInterface[] = [...exportData.campuses];
   let tmpServices: ImportServiceInterface[] = [...exportData.services];
   let tmpServiceTimes: ImportServiceTimeInterface[] = [...exportData.serviceTimes];
@@ -88,7 +91,7 @@ const exportCampuses = async (exportData: ImportDataInterface, runImport: (keyNa
   return { campuses: tmpCampuses, services: tmpServices, serviceTimes: tmpServiceTimes };
 }
 
-const exportPeople = async (exportData: ImportDataInterface, runImport: (keyName: string, code: () => void) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
+const exportPeople = async (exportData: ImportDataInterface, runImport: (keyName: string, code: () => void, skipComplete?: boolean) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
   let tmpPeople: ImportPersonInterface[] = [...exportData.people];
   let tmpHouseholds: ImportHouseholdInterface[] = [...exportData.households];
 
@@ -108,11 +111,15 @@ const exportPeople = async (exportData: ImportDataInterface, runImport: (keyName
         p.householdId = ImportHelper.getByImportKey(tmpHouseholds, p.householdKey).id;
         p.householdRole = "Other";
       });
-      await postInBatches("/people", tmpPeople, "MembershipApi", (current, total) => {
-        updateProgress("People", `running (batch ${current}/${total})`);
+      await postInBatches("/people", tmpPeople, "MembershipApi", (current, total, isComplete) => {
+        if (isComplete) {
+          updateProgress("People", "complete");
+        } else {
+          updateProgress("People", `running (batch ${current}/${total})`);
+        }
       });
     }
-  });
+  }, true);
 
   await runImport("Photos", async () => {
     // Photos are already uploaded with people
@@ -121,7 +128,7 @@ const exportPeople = async (exportData: ImportDataInterface, runImport: (keyName
   return tmpPeople;
 }
 
-const exportGroups = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], tmpServiceTimes: ImportServiceTimeInterface[], runImport: (keyName: string, code: () => void) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
+const exportGroups = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], tmpServiceTimes: ImportServiceTimeInterface[], runImport: (keyName: string, code: () => void, skipComplete?: boolean) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
   let tmpGroups: ImportGroupInterface[] = [...exportData.groups];
   let tmpTimes: ImportGroupServiceTimeInterface[] = [...exportData.groupServiceTimes];
   let tmpMembers: ImportGroupMemberInterface[] = [...exportData.groupMembers];
@@ -148,11 +155,15 @@ const exportGroups = async (exportData: ImportDataInterface, tmpPeople: ImportPe
         gm.groupId = ImportHelper.getByImportKey(tmpGroups, gm.groupKey)?.id
         gm.personId = ImportHelper.getByImportKey(tmpPeople, gm.personKey)?.id
       });
-      await postInBatches("/groupmembers", tmpMembers, "MembershipApi", (current, total) => {
-        updateProgress("Group Members", `running (batch ${current}/${total})`);
+      await postInBatches("/groupmembers", tmpMembers, "MembershipApi", (current, total, isComplete) => {
+        if (isComplete) {
+          updateProgress("Group Members", "complete");
+        } else {
+          updateProgress("Group Members", `running (batch ${current}/${total})`);
+        }
       });
     }
-  });
+  }, true);
 
   return tmpGroups;
 }
@@ -213,7 +224,7 @@ const exportForms = async (exportData: ImportDataInterface, tmpPeople: ImportPer
   })
 }
 
-const exportDonations = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], runImport: (keyName: string, code: () => void) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
+const exportDonations = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], runImport: (keyName: string, code: () => void, skipComplete?: boolean) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
   let tmpFunds: ImportFundInterface[] = [...exportData.funds];
   let tmpBatches: ImportDonationBatchInterface[] = [...exportData.batches];
   let tmpDonations: ImportDonationInterface[] = [...exportData.donations];
@@ -235,11 +246,15 @@ const exportDonations = async (exportData: ImportDataInterface, tmpPeople: Impor
         d.personId = ImportHelper.getByImportKey(tmpPeople, d.personKey)?.id;
       });
 
-      await postInBatches("/donations", tmpDonations, "GivingApi", (current, total) => {
-        updateProgress("Donations", `running (batch ${current}/${total})`);
+      await postInBatches("/donations", tmpDonations, "GivingApi", (current, total, isComplete) => {
+        if (isComplete) {
+          updateProgress("Donations", "complete");
+        } else {
+          updateProgress("Donations", `running (batch ${current}/${total})`);
+        }
       });
     }
-  });
+  }, true);
 
   await runImport("Donation Funds", async () => {
     let tmpFundDonations: ImportFundDonationInterface[] = [...exportData.fundDonations];
@@ -253,7 +268,7 @@ const exportDonations = async (exportData: ImportDataInterface, tmpPeople: Impor
   });
 }
 
-const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], tmpGroups: ImportGroupInterface[], tmpServices: ImportServiceInterface[], tmpServiceTimes: ImportServiceTimeInterface[], runImport: (keyName: string, code: () => void) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
+const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: ImportPersonInterface[], tmpGroups: ImportGroupInterface[], tmpServices: ImportServiceInterface[], tmpServiceTimes: ImportServiceTimeInterface[], runImport: (keyName: string, code: () => void, skipComplete?: boolean) => Promise<void>, updateProgress: (name: string, status: string) => void) => {
   let tmpSessions: ImportSessionInterface[] = [...exportData.sessions];
   let tmpVisits: ImportVisitInterface[] = [...exportData.visits];
   await runImport("Attendance", async () => {
@@ -274,8 +289,12 @@ const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: Impo
           v.groupId = ImportHelper.getByImportKey(tmpGroups, v.groupKey).id;
         }
       });
-      await postInBatches("/visits", tmpVisits, "AttendanceApi", (current, total) => {
-        updateProgress("Attendance", `running - visits (batch ${current}/${total})`);
+      await postInBatches("/visits", tmpVisits, "AttendanceApi", (current, total, isComplete) => {
+        if (isComplete) {
+          updateProgress("Attendance", "running - processing visit sessions");
+        } else {
+          updateProgress("Attendance", `running - visits (batch ${current}/${total})`);
+        }
       });
     }
 
@@ -285,11 +304,15 @@ const exportAttendance = async (exportData: ImportDataInterface, tmpPeople: Impo
         vs.visitId = ImportHelper.getByImportKey(tmpVisits, vs.visitKey).id;
         vs.sessionId = ImportHelper.getByImportKey(tmpSessions, vs.sessionKey).id;
       });
-      await postInBatches("/visitsessions", tmpVisitSessions, "AttendanceApi", (current, total) => {
-        updateProgress("Attendance", `running - visit sessions (batch ${current}/${total})`);
+      await postInBatches("/visitsessions", tmpVisitSessions, "AttendanceApi", (current, total, isComplete) => {
+        if (isComplete) {
+          updateProgress("Attendance", "complete");
+        } else {
+          updateProgress("Attendance", `running - visit sessions (batch ${current}/${total})`);
+        }
       });
     }
-  });
+  }, true);
 }
 
 export default exportToChumsDb;

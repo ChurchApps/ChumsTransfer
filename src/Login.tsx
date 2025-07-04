@@ -32,9 +32,24 @@ export const Login: React.FC = (props: any) => {
     if (!auth) auth = "";
     if (!returnUrl) returnUrl = "";
 
-    return (<Box sx={{ display: "flex", backgroundColor: "#EEE", minHeight: "100vh" }}>
-      <LoginPage auth={auth} context={context} jwt={jwt} appName="CHUMS" appUrl={window.location.href} churchRegisteredCallback={postChurchRegister} userRegisteredCallback={trackUserRegister} callbackErrors={errors} returnUrl={returnUrl} />
-    </Box>);
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          backgroundColor: "#EEE",
+          minHeight: "100vh",
+        }}
+      >
+        <Box
+          sx={{
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
+          <LoginPage auth={auth} context={context} jwt={jwt} appName="CHUMS" appUrl={window.location.href} churchRegisteredCallback={postChurchRegister} userRegisteredCallback={trackUserRegister} callbackErrors={errors} returnUrl={returnUrl} />
+        </Box>
+      </Box>
+    );
   } else {
     // @ts-ignore
     let from = location.state?.from?.pathname || "/";
