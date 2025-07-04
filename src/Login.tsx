@@ -14,11 +14,11 @@ export const Login: React.FC = (props: any) => {
   const location = useLocation();
 
   const postChurchRegister = async (church: ChurchInterface) => {
-    if (EnvironmentHelper.GoogleAnalyticsTag !== "") ReactGA.event({ category: "Church", action: "Register" });
+    if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") ReactGA.event({ category: "Church", action: "Register" });
   }
 
   const trackUserRegister = async (user: UserInterface) => {
-    if (EnvironmentHelper.GoogleAnalyticsTag !== "") ReactGA.event({ category: "User", action: "Register" });
+    if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") ReactGA.event({ category: "User", action: "Register" });
   }
 
   const context = React.useContext(UserContext);

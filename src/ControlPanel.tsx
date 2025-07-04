@@ -15,12 +15,12 @@ export const ControlPanel = () => {
   console.log("***CONTROL PANEL")
 
   const location = useLocation();
-  if (EnvironmentHelper.GoogleAnalyticsTag !== "") {
-    ReactGA.initialize(EnvironmentHelper.GoogleAnalyticsTag);
+  if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") {
+    ReactGA.initialize(EnvironmentHelper.Common.GoogleAnalyticsTag);
     ReactGA.send({ hitType: "pageview", page: window.location.pathname + window.location.search });
   }
   React.useEffect(() => { 
-    if (EnvironmentHelper.GoogleAnalyticsTag !== "") {
+    if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") {
       ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
     }
   }, [location]);
