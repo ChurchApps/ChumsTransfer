@@ -7,7 +7,7 @@ import { Login } from "./Login";
 
 import { Authenticated } from "./Authenticated";
 import { Logout } from "./Logout";
-import ReactGA from "react-ga";
+import ReactGA from "react-ga4";
 import { EnvironmentHelper } from "./helpers";
 import { Home } from "./Home";
 
@@ -15,11 +15,15 @@ export const ControlPanel = () => {
   console.log("***CONTROL PANEL")
 
   const location = useLocation();
-  if (EnvironmentHelper.GoogleAnalyticsTag !== "") {
-    ReactGA.initialize(EnvironmentHelper.GoogleAnalyticsTag);
-    ReactGA.pageview(window.location.pathname + window.location.search);
+  if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") {
+    ReactGA.initialize(EnvironmentHelper.Common.GoogleAnalyticsTag);
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname + window.location.search });
   }
-  React.useEffect(() => { if (EnvironmentHelper.GoogleAnalyticsTag !== "") ReactGA.pageview(location.pathname + location.search); }, [location]);
+  React.useEffect(() => {
+    if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") {
+      ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+    }
+  }, [location]);
 
   let user = React.useContext(UserContext).user; //to force rerender on login
   console.log(user===null);
@@ -41,7 +45,7 @@ export const ControlPanel = () => {
   );
 };
 
-const RequireAuth = ({ children }: { children: JSX.Element }) => {
+const RequireAuth = ({ children }: { children: React.ReactElement }) => {
   const location = useLocation()
   if (!ApiHelper.isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
@@ -49,4 +53,3 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
 
   return children
 }
-

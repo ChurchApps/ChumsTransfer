@@ -4,7 +4,7 @@ import { useCookies } from "react-cookie";
 import { ApiHelper } from "./components";
 import UserContext from "./UserContext";
 import { LoginPage, ChurchInterface, UserInterface } from "@churchapps/apphelper";
-import ReactGA from "react-ga";
+import ReactGA from "react-ga4";
 import { EnvironmentHelper } from "./helpers";
 import { Box } from "@mui/material";
 
@@ -14,11 +14,11 @@ export const Login: React.FC = (props: any) => {
   const location = useLocation();
 
   const postChurchRegister = async (church: ChurchInterface) => {
-    if (EnvironmentHelper.GoogleAnalyticsTag !== "") ReactGA.event({ category: "Church", action: "Register" });
+    if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") ReactGA.event({ category: "Church", action: "Register" });
   }
 
   const trackUserRegister = async (user: UserInterface) => {
-    if (EnvironmentHelper.GoogleAnalyticsTag !== "") ReactGA.event({ category: "User", action: "Register" });
+    if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") ReactGA.event({ category: "User", action: "Register" });
   }
 
   const context = React.useContext(UserContext);
@@ -32,9 +32,24 @@ export const Login: React.FC = (props: any) => {
     if (!auth) auth = "";
     if (!returnUrl) returnUrl = "";
 
-    return (<Box sx={{ display: "flex", backgroundColor: "#EEE", minHeight: "100vh" }}>
-      <LoginPage auth={auth} context={context} jwt={jwt} appName="CHUMS" appUrl={window.location.href} churchRegisteredCallback={postChurchRegister} userRegisteredCallback={trackUserRegister} callbackErrors={errors} returnUrl={returnUrl} />
-    </Box>);
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          backgroundColor: "#EEE",
+          minHeight: "100vh",
+        }}
+      >
+        <Box
+          sx={{
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
+          <LoginPage auth={auth} context={context} jwt={jwt} appName="CHUMS" appUrl={window.location.href} churchRegisteredCallback={postChurchRegister} userRegisteredCallback={trackUserRegister} callbackErrors={errors} returnUrl={returnUrl} />
+        </Box>
+      </Box>
+    );
   } else {
     // @ts-ignore
     let from = location.state?.from?.pathname || "/";

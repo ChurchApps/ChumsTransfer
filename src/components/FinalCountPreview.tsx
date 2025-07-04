@@ -1,5 +1,5 @@
 import React from "react";
-import { Table } from "react-bootstrap";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import { ImportDataInterface } from "../helpers/ImportHelper";
 import { DisplayBox } from "@churchapps/apphelper";
 
@@ -23,29 +23,31 @@ export const FinalCountPreview = (props: Props) => {
       let importData = props.importData[key as keyof ImportDataInterface];
       const total = chumsData.length + importData.length;
       rows.push(
-        <tr key={index}>
-          <td>{camelCaseToWords(key)}</td>
-          <td>{chumsData.length}</td>
-          <td>{importData.length}</td>
-          <td>{total}</td>
-        </tr>
+        <TableRow key={index}>
+          <TableCell>{camelCaseToWords(key)}</TableCell>
+          <TableCell>{chumsData.length}</TableCell>
+          <TableCell>{importData.length}</TableCell>
+          <TableCell>{total}</TableCell>
+        </TableRow>
       );
     });
     return rows;
   };
 
   const getTable = () => (
-    <Table>
-      <thead>
-        <tr>
-          <th>Category</th>
-          <th>Current</th>
-          <th>To Add</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>{getRows()}</tbody>
-    </Table>
+    <TableContainer sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'grey.300', borderRadius: 2 }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Category</TableCell>
+            <TableCell>Current</TableCell>
+            <TableCell>To Add</TableCell>
+            <TableCell>Total</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>{getRows()}</TableBody>
+      </Table>
+    </TableContainer>
   );
 
   return (

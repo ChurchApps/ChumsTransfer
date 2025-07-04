@@ -6,7 +6,7 @@ export class PersonHelper extends BasePersonHelper {
     if (!person?.photo) {
       return "/images/sample-profile.png"
     }
-    return person.photo.startsWith("data:image/png;base64,") ? person.photo : EnvironmentHelper.ContentRoot + person.photo;
+    return person.photo.startsWith("data:image/png;base64,") ? person.photo : EnvironmentHelper.Common.ContentRoot + person.photo;
   }
   static calculateAge(birthday: Date) {
     let ageDifMs = new Date().getTime() - new Date(birthday).getTime();
