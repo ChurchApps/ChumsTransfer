@@ -19,15 +19,13 @@ export const IconText: React.FC<IconTextProps> = ({
   spacing = 1,
   variant = "body2",
   color
-}) => {
-  return (
-    <Stack direction="row" spacing={spacing} alignItems="center">
-      {React.cloneElement(icon as React.ReactElement<any>, { 
-        sx: { fontSize: iconSize, color: iconColor } 
-      })}
-      <Typography variant={variant} color={color}>
-        {children}
-      </Typography>
-    </Stack>
-  );
-};
+}) => (
+  <Stack direction="row" spacing={spacing} alignItems="center">
+    {React.cloneElement(icon as React.ReactElement<any>, {
+      sx: { fontSize: iconSize, color: iconColor }
+    })}
+    <Typography variant={variant} color={color}>
+      {children}
+    </Typography>
+  </Stack>
+);

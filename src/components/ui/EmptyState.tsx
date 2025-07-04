@@ -20,15 +20,15 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   const content = (
     <Stack spacing={2} alignItems="center" sx={{ py: variant === "table" ? 4 : 6 }}>
-      {React.cloneElement(icon as React.ReactElement<any>, { 
-        sx: { 
-          fontSize: variant === "table" ? 48 : 64, 
-          color: variant === "table" ? 'text.secondary' : 'grey.400' 
-        } 
+      {React.cloneElement(icon as React.ReactElement<any>, {
+        sx: {
+          fontSize: variant === "table" ? 48 : 64,
+          color: variant === "table" ? 'text.secondary' : 'grey.400'
+        }
       })}
-      <Typography 
-        variant={variant === "table" ? "body1" : "h6"} 
-        color="text.secondary" 
+      <Typography
+        variant={variant === "table" ? "body1" : "h6"}
+        color="text.secondary"
         sx={{ fontWeight: variant === "table" ? 400 : 600 }}
       >
         {title}
@@ -51,9 +51,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   }
 
   return (
-    <Paper 
-      sx={{ 
-        textAlign: 'center', 
+    <Paper
+      sx={{
+        textAlign: 'center',
         backgroundColor: 'grey.50',
         border: '1px dashed',
         borderColor: 'grey.300',

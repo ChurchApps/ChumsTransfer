@@ -14,28 +14,28 @@ export const StatusChip: React.FC<StatusChipProps> = ({
 }) => {
   const getStatusColor = (status: string) => {
     const normalizedStatus = status.toLowerCase();
-    
+
     if (normalizedStatus.includes('member') || normalizedStatus.includes('active') || normalizedStatus.includes('complete')) {
       return {
         backgroundColor: "#e8f5e9",
         color: "#2e7d32"
       };
     }
-    
+
     if (normalizedStatus.includes('visitor') || normalizedStatus.includes('pending') || normalizedStatus.includes('warning')) {
       return {
         backgroundColor: "#fff3e0",
         color: "#f57c00"
       };
     }
-    
+
     if (normalizedStatus.includes('staff') || normalizedStatus.includes('admin') || normalizedStatus.includes('info')) {
       return {
         backgroundColor: "#e3f2fd",
         color: "#1565c0"
       };
     }
-    
+
     // Default gray for other statuses
     return {
       backgroundColor: "transparent",
@@ -45,14 +45,14 @@ export const StatusChip: React.FC<StatusChipProps> = ({
   };
 
   const colors = getStatusColor(status);
-  
+
   if (variant === "header") {
     return (
       <Chip
         label={status}
         size={size}
-        sx={{ 
-          backgroundColor: "rgba(255,255,255,0.2)", 
+        sx={{
+          backgroundColor: "rgba(255,255,255,0.2)",
           color: "#FFF",
           fontSize: '0.75rem',
           height: 20,
@@ -63,14 +63,14 @@ export const StatusChip: React.FC<StatusChipProps> = ({
   }
 
   return (
-    <Chip 
-      label={status} 
-      size={size} 
-      sx={{ 
+    <Chip
+      label={status}
+      size={size}
+      sx={{
         ...colors,
         fontWeight: 600,
         fontSize: '0.75rem'
-      }} 
+      }}
     />
   );
 };

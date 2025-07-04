@@ -15,10 +15,10 @@ export const TabRun = (props: Props) => {
 
   const getProgress = (name: string) => {
     const status = props.status[name];
-    
+
     let icon;
     let color: any = 'text.secondary';
-    
+
     if (status === undefined) {
       icon = <RadioButtonUnchecked sx={{ color: 'grey.400' }} />;
     } else if (status === "error") {
@@ -39,14 +39,14 @@ export const TabRun = (props: Props) => {
         <ListItemIcon sx={{ minWidth: 36 }}>
           {icon}
         </ListItemIcon>
-        <ListItemText 
-          primary={name} 
-          sx={{ 
+        <ListItemText
+          primary={name}
+          sx={{
             color,
-            '& .MuiTypography-root': { 
-              fontWeight: status === 'running' ? 600 : 400 
+            '& .MuiTypography-root': {
+              fontWeight: status === 'running' ? 600 : 400
             }
-          }} 
+          }}
         />
       </ListItem>
     );
@@ -54,7 +54,7 @@ export const TabRun = (props: Props) => {
 
   const getExportSteps = () => {
     if (!props.isExporting) return null;
-    
+
     let steps = ["Campuses/Services/Times", "People", "Photos", "Groups", "Group Members", "Donations", "Attendance", "Forms", "Questions", "Answers", "Form Submissions", "Compressing"];
     if (props.dataExportSource === DataSourceType.CHUMS_DB) steps = steps.filter(s => s !== "Compressing")
     let stepsHtml: React.ReactElement[] = [];
@@ -85,13 +85,13 @@ export const TabRun = (props: Props) => {
       <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, color: 'primary.main', mb: 3 }}>
         Step 4 - Export Progress
       </Typography>
-      
+
       {!props.isExporting && (
         <Alert severity="info">
           Export will begin once you complete the previous steps and click "Confirm" in Step 3.
         </Alert>
       )}
-      
+
       {props.dataExportSource && props.isExporting && getExportSteps()}
     </Box>
   )

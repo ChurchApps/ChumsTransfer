@@ -85,7 +85,7 @@ export const TabSource = (props: Props) => {
       <Typography variant="body1" paragraph>
         Choose data source for import data
       </Typography>
-      
+
       <FormControl fullWidth sx={{ mb: 3, maxWidth: 300 }}>
         <InputLabel id="import-source-select-label">Data Source</InputLabel>
         <Select

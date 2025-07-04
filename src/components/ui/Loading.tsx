@@ -33,9 +33,9 @@ export const Loading: React.FC<LoadingProps> = ({
 
   if (center) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
         alignItems: 'center',
         py: 4
       }}>

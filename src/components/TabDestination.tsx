@@ -86,7 +86,7 @@ export const TabDestination = (props: Props) => {
       <Typography variant="body1" paragraph>
         Choose export format
       </Typography>
-      
+
       <FormControl fullWidth sx={{ mb: 3, maxWidth: 300 }}>
         <InputLabel id="export-destination-select-label">Export Destination</InputLabel>
         <Select
@@ -106,9 +106,9 @@ export const TabDestination = (props: Props) => {
         <Box sx={{ mt: 3 }}>
           <FinalCountPreview importData={props.importData} chumsData={chumsData} />
           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button 
-              variant="contained" 
-              color="success" 
+            <Button
+              variant="contained"
+              color="success"
               onClick={() => handleExport(DataSourceType.CHUMS_DB)}
               sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 600, px: 4 }}
             >

@@ -19,7 +19,7 @@ export const ControlPanel = () => {
     ReactGA.initialize(EnvironmentHelper.Common.GoogleAnalyticsTag);
     ReactGA.send({ hitType: "pageview", page: window.location.pathname + window.location.search });
   }
-  React.useEffect(() => { 
+  React.useEffect(() => {
     if (EnvironmentHelper.Common.GoogleAnalyticsTag !== "") {
       ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
     }

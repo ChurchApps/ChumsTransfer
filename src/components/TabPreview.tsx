@@ -23,21 +23,21 @@ export const TabPreview = (props: Props) => {
       <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 600, color: 'primary.main', mb: 3 }}>
         Step 2 - Preview
       </Typography>
-      
+
       {props.isLoadingSourceData && props.dataImportSource === DataSourceType.CHUMS_DB && (
         <Loading message="Loading data from CHUMS database..." />
       )}
-      
+
       {getPreview()}
-      
+
       {props.importData && (
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button 
-            onClick={() => props.setActiveTab("step3")} 
-            variant="contained" 
+          <Button
+            onClick={() => props.setActiveTab("step3")}
+            variant="contained"
             color="primary"
             size="large"
-            sx={{ 
+            sx={{
               textTransform: 'none',
               borderRadius: 2,
               fontWeight: 600,

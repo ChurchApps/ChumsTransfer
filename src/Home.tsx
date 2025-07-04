@@ -47,11 +47,11 @@ export const Home = () => {
           title="Import/Export Tool"
           subtitle="Backup, transfer, and import your CHUMS data"
         >
-          <Button 
-            variant="outlined" 
-            size="small" 
+          <Button
+            variant="outlined"
+            size="small"
             href="https://chums.org/"
-            sx={{ 
+            sx={{
               color: '#FFF',
               borderColor: 'rgba(255,255,255,0.5)',
               textTransform: 'none',
@@ -65,10 +65,10 @@ export const Home = () => {
             Go to CHUMS
           </Button>
         </PageHeader>
-        
+
         <Box sx={{ py: 4, px: 3 }}>
           {/* Instructions Section */}
-          <Card sx={{ 
+          <Card sx={{
             borderRadius: 2,
             border: '1px solid',
             borderColor: 'grey.200',
@@ -85,15 +85,15 @@ export const Home = () => {
           </Card>
 
           {/* Wizard Tabs */}
-          <Card sx={{ 
+          <Card sx={{
             borderRadius: 2,
             border: '1px solid',
             borderColor: 'grey.200',
             overflow: 'hidden'
           }}>
-            <Tabs 
-              value={activeTab} 
-              onChange={(_, newValue) => setActiveTab(newValue)} 
+            <Tabs
+              value={activeTab}
+              onChange={(_, newValue) => setActiveTab(newValue)}
               variant="fullWidth"
               sx={{
                 backgroundColor: 'grey.50',
@@ -113,9 +113,9 @@ export const Home = () => {
               <Tab label="Step 3 - Destination" value="step3" disabled={activeTab !== "step3"} />
               <Tab label="Step 4 - Run" value="step4" disabled={activeTab !== "step4"} />
             </Tabs>
-            
-            <Box sx={{ 
-              p: 4, 
+
+            <Box sx={{
+              p: 4,
               bgcolor: 'background.paper',
               minHeight: 400
             }}>
@@ -133,17 +133,17 @@ export const Home = () => {
               )}
             </Box>
           </Card>
-          
+
           {/* Action Buttons */}
           {importData && (
             <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-              <Button 
-                onClick={handleStartOver} 
-                variant="outlined" 
+              <Button
+                onClick={handleStartOver}
+                variant="outlined"
                 color="error"
                 size="large"
-                sx={{ 
-                  px: 4, 
+                sx={{
+                  px: 4,
                   py: 1.5,
                   textTransform: 'none',
                   borderRadius: 2,
