@@ -25,7 +25,7 @@ const postInBatches = async <T extends { id?: string }>(
     const batch = data.slice(i, i + BATCH_SIZE);
     const isLastBatch = currentBatch === totalBatches;
 
-    if (progressCallback && totalBatches > 1) {
+    if (progressCallback) {
       progressCallback(currentBatch, totalBatches, isLastBatch);
     }
 

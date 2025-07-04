@@ -35,7 +35,6 @@ export const Home = () => {
     setShowFinalCount(false);
   };
 
-  console.log("***Made it Home");
 
   return (
     <>
