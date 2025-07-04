@@ -39,4 +39,5 @@ jobs:
       - name: Deploy
         run: |
           npm ci --legacy-peer-deps
+          bash fix-cropper.sh
           npm run deploy-staging
