@@ -1,1 +1,2 @@
 export * from "@churchapps/apphelper";
+export type { HouseholdInterface, HouseholdMemberInterface, PersonInterface, CampusInterface, ServiceInterface, ServiceTimeInterface, GroupInterface, GroupMemberInterface, GroupServiceTimeInterface, SessionInterface, VisitInterface, VisitSessionInterface, DonationBatchInterface, FundInterface, DonationInterface, FundDonationInterface, FormInterface, QuestionInterface, FormSubmissionInterface, AnswerInterface, ContactInfoInterface, NameInterface } from "@churchapps/helpers";

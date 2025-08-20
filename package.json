@@ -2,12 +2,14 @@
   "name": "chums-transfer",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "dependencies": {
-    "@churchapps/apphelper": "0.4.7",
-    "@churchapps/helpers": "^1.0.39",
+    "@churchapps/apphelper": "^0.4.35",
+    "@churchapps/apphelper-login": "^0.4.35",
+    "@churchapps/helpers": "^1.1.3",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
+    "@stripe/react-stripe-js": "^3.9.1",
+    "@stripe/stripe-js": "^7.8.0",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
@@ -26,9 +28,9 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject",
     "lint:only": "eslint --ext ts,tsx,js",
     "lint:fix": "npm run lint:only -- --fix",
@@ -40,7 +42,7 @@
     "exec-deploy-prod": "aws s3 sync build/ s3://chums-transfer",
     "postdeploy-prod": "aws cloudfront create-invalidation --distribution-id E29Q1TKCS5G75P --paths \"/*\"",
     "deploy-prod": "npm run predeploy-prod && npm run exec-deploy-prod && npm run postdeploy-prod",
-    "postinstall": "copyfiles -a -f node_modules/@churchapps/apphelper/public/locales/** public/apphelper/locales && copyfiles -a -f node_modules/@churchapps/apphelper/public/css/** public/apphelper/css"
+    "postinstall": "copyfiles -a -f node_modules/@churchapps/apphelper/public/locales/** public/apphelper/locales && copyfiles -a -f node_modules/@churchapps/apphelper/public/css/** public/apphelper/css && node fix-apphelper-imports.js"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,js}": [
@@ -54,12 +56,13 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
     "@types/file-saver": "^2.0.7",
     "@types/xlsx": "^0.0.36",
     "copyfiles": "^2.4.1",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.37.5",
     "lint-staged": "^16.1.2",
-    "typescript": "^5.8.3"
+    "typescript": "^4.9.5"
   }
 }

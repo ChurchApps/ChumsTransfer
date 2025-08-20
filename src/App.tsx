@@ -5,7 +5,6 @@ import { CssBaseline } from "@mui/material";
 import { ControlPanel } from "./ControlPanel";
 import { UserProvider } from "./UserContext";
 import { CookiesProvider } from "react-cookie";
-import "@churchapps/apphelper/dist/components/markdownEditor/editor.css";
 
 const theme = createTheme({
   palette: {

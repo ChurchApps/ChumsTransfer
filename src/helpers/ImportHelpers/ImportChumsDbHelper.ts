@@ -63,9 +63,9 @@ const getChumsData = async (): Promise<ImportDataInterface> => {
 
 const getCampusServiceTimes = async () => {
   let promises = []
-  promises.push(ApiHelper.get("/campuses", "AttendanceApi").then(data => campuses = data));
-  promises.push(ApiHelper.get("/services", "AttendanceApi").then(data => services = data));
-  promises.push(ApiHelper.get("/servicetimes", "AttendanceApi").then(data => serviceTimes = data));
+  promises.push(ApiHelper.get("/campuses", "AttendanceApi").then((data: any) => campuses = data));
+  promises.push(ApiHelper.get("/services", "AttendanceApi").then((data: any) => services = data));
+  promises.push(ApiHelper.get("/servicetimes", "AttendanceApi").then((data: any) => serviceTimes = data));
   await Promise.all(promises)
   let data: any[] = [];
   serviceTimes.forEach((st) => {
@@ -94,8 +94,8 @@ const getPeople = async () => {
 
 const getGroups = async () => {
   let promises = []
-  promises.push(ApiHelper.get("/groups", "MembershipApi").then(data => groups = data));
-  promises.push(ApiHelper.get("/groupserviceTimes", "AttendanceApi").then(data => groupServiceTimes = data));
+  promises.push(ApiHelper.get("/groups", "MembershipApi").then((data: any) => groups = data));
+  promises.push(ApiHelper.get("/groupserviceTimes", "AttendanceApi").then((data: any) => groupServiceTimes = data));
   await Promise.all(promises);
   groups.forEach((g) => {
     let serviceTimeIds: string[] = [];
@@ -137,10 +137,10 @@ const getGroupMembers = async () => {
 
 const getDonations = async () => {
   let promises = []
-  promises.push(ApiHelper.get("/funds", "GivingApi").then(data => funds = data));
-  promises.push(ApiHelper.get("/donationbatches", "GivingApi").then(data => batches = data));
-  promises.push(ApiHelper.get("/donations", "GivingApi").then(data => donations = data));
-  promises.push(ApiHelper.get("/funddonations", "GivingApi").then(data => fundDonations = data));
+  promises.push(ApiHelper.get("/funds", "GivingApi").then((data: any) => funds = data));
+  promises.push(ApiHelper.get("/donationbatches", "GivingApi").then((data: any) => batches = data));
+  promises.push(ApiHelper.get("/donations", "GivingApi").then((data: any) => donations = data));
+  promises.push(ApiHelper.get("/funddonations", "GivingApi").then((data: any) => fundDonations = data));
   await Promise.all(promises);
   donations.forEach((d) => {
     let person = people.find(p => p.id === d.personId)
@@ -157,9 +157,9 @@ const getDonations = async () => {
 
 const getAttendance = async () => {
   let promises = []
-  promises.push(ApiHelper.get("/sessions", "AttendanceApi").then(data => sessions = data));
-  promises.push(ApiHelper.get("/visits", "AttendanceApi").then(data => visits = data));
-  promises.push(ApiHelper.get("/visitsessions", "AttendanceApi").then(data => visitSessions = data));
+  promises.push(ApiHelper.get("/sessions", "AttendanceApi").then((data: any) => sessions = data));
+  promises.push(ApiHelper.get("/visits", "AttendanceApi").then((data: any) => visits = data));
+  promises.push(ApiHelper.get("/visitsessions", "AttendanceApi").then((data: any) => visitSessions = data));
   await Promise.all(promises);
   let data: any[] = [];
   visitSessions.forEach((vs) => {
